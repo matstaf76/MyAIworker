@@ -1,0 +1,511 @@
+/* ============================================================
+   MyAIworker.online — widget.css
+   AI Chat + Voice Widget
+   ============================================================ */
+
+/* ── LAUNCHER ─────────────────────────────────────────────── */
+#aiw-launcher {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 9000;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.75rem;
+}
+
+/* ── TEASER BUBBLE ────────────────────────────────────────── */
+#aiw-teaser {
+  background: var(--clr-amber);
+  color: #0c0d0f;
+  padding: 0.6rem 1rem;
+  border-radius: 1.5rem 1.5rem 0.25rem 1.5rem;
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  box-shadow: 0 8px 28px rgba(245,166,35,0.45);
+  cursor: pointer;
+  white-space: nowrap;
+  animation: teaserIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+  animation-delay: 1.5s;
+  opacity: 0;
+}
+
+@keyframes teaserIn {
+  from { opacity: 0; transform: scale(0.7) translateY(10px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+#aiw-teaser.hidden { display: none; }
+
+/* ── FAB BUTTON ───────────────────────────────────────────── */
+#aiw-fab {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--clr-amber) 0%, var(--clr-amber-dim) 100%);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 24px rgba(245,166,35,0.5);
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+#aiw-fab::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.2), transparent 60%);
+  pointer-events: none;
+}
+
+#aiw-fab:hover {
+  transform: scale(1.08);
+  box-shadow: 0 10px 32px rgba(245,166,35,0.65);
+}
+
+#aiw-fab svg { position: absolute; transition: opacity 0.2s, transform 0.2s; }
+#aiw-fab .ico-chat  { opacity: 1; transform: scale(1); }
+#aiw-fab .ico-close { opacity: 0; transform: scale(0.6); }
+
+#aiw-fab.open .ico-chat  { opacity: 0; transform: scale(0.6); }
+#aiw-fab.open .ico-close { opacity: 1; transform: scale(1); }
+
+/* ── CHAT WINDOW ──────────────────────────────────────────── */
+#aiw-window {
+  position: fixed;
+  bottom: 5.5rem;
+  right: 1.5rem;
+  width: min(390px, calc(100vw - 2rem));
+  height: min(560px, calc(100svh - 7rem));
+  background: var(--clr-bg-2);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.7), 0 0 0 1px rgba(245,166,35,0.1);
+  z-index: 8999;
+  transform: scale(0.88) translateY(16px);
+  opacity: 0;
+  pointer-events: none;
+  transform-origin: bottom right;
+  transition: transform 0.35s cubic-bezier(0.34,1.3,0.64,1), opacity 0.25s ease;
+}
+
+#aiw-window.open {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* ── WINDOW HEADER ────────────────────────────────────────── */
+.aiw-header {
+  background: var(--clr-surface);
+  border-bottom: 1px solid var(--clr-border);
+  padding: 0.9rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.aiw-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--clr-amber), var(--clr-amber-dim));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 2px rgba(245,166,35,0.25);
+}
+
+.aiw-header-text { flex: 1; min-width: 0; }
+
+.aiw-name {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--clr-white);
+}
+
+.aiw-status {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--clr-green);
+  margin-top: 0.1rem;
+}
+
+.aiw-status-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--clr-green);
+  border-radius: 50%;
+  animation: blink 2s infinite;
+}
+
+/* ── SETUP SCREEN ─────────────────────────────────────────── */
+#aiw-setup {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+  gap: 1rem;
+  text-align: center;
+}
+
+.setup-emoji { font-size: 2.5rem; }
+
+.setup-title {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--clr-white);
+}
+
+.setup-desc {
+  font-size: 0.875rem;
+  color: var(--clr-text-muted);
+  line-height: 1.6;
+  max-width: 280px;
+}
+
+.setup-input {
+  width: 100%;
+  background: var(--clr-surface);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 1rem;
+  color: var(--clr-text);
+  font-size: 0.875rem;
+  font-family: 'Courier New', monospace;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.setup-input:focus { border-color: var(--clr-amber); }
+.setup-input::placeholder { color: var(--clr-text-dim); }
+
+.setup-note {
+  font-size: 0.75rem;
+  color: var(--clr-text-dim);
+}
+
+.setup-note a { color: var(--clr-amber); }
+
+/* ── MESSAGES AREA ────────────────────────────────────────── */
+#aiw-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  scroll-behavior: smooth;
+}
+
+#aiw-messages::-webkit-scrollbar { width: 3px; }
+#aiw-messages::-webkit-scrollbar-track { background: transparent; }
+#aiw-messages::-webkit-scrollbar-thumb { background: var(--clr-border); border-radius: 2px; }
+
+/* ── MESSAGE BUBBLES ──────────────────────────────────────── */
+.aiw-msg {
+  display: flex;
+  gap: 0.5rem;
+  animation: msgPop 0.3s cubic-bezier(0.34,1.2,0.64,1) both;
+}
+
+@keyframes msgPop {
+  from { opacity: 0; transform: translateY(8px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.aiw-msg.user { flex-direction: row-reverse; }
+
+.aiw-bubble {
+  max-width: 80%;
+  padding: 0.7rem 0.9rem;
+  border-radius: 1rem;
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.aiw-msg.bot .aiw-bubble {
+  background: var(--clr-surface);
+  color: var(--clr-text);
+  border: 1px solid var(--clr-border);
+  border-bottom-left-radius: 0.25rem;
+}
+
+.aiw-msg.user .aiw-bubble {
+  background: var(--clr-amber);
+  color: #0c0d0f;
+  border-bottom-right-radius: 0.25rem;
+  font-weight: 500;
+}
+
+.aiw-mini-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--clr-amber), var(--clr-amber-dim));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+}
+
+/* ── TYPING INDICATOR ─────────────────────────────────────── */
+.typing-dots {
+  display: flex;
+  gap: 0.3rem;
+  padding: 0.25rem 0.1rem;
+  align-items: center;
+}
+
+.typing-dot {
+  width: 7px;
+  height: 7px;
+  background: var(--clr-amber);
+  border-radius: 50%;
+  animation: typeBounce 1s infinite ease-in-out;
+  opacity: 0.5;
+}
+
+.typing-dot:nth-child(2) { animation-delay: 0.15s; }
+.typing-dot:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes typeBounce {
+  0%,60%,100% { transform: translateY(0); opacity: 0.4; }
+  30%          { transform: translateY(-5px); opacity: 1; }
+}
+
+/* ── CTA BUTTONS IN CHAT ──────────────────────────────────── */
+.aiw-cta-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.aiw-cta-btn {
+  display: block;
+  width: 100%;
+  padding: 0.65rem 1rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-align: center;
+  text-decoration: none;
+  transition: opacity 0.15s, transform 0.15s;
+}
+
+.aiw-cta-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+
+.aiw-cta-btn--amber {
+  background: var(--clr-amber);
+  color: #0c0d0f;
+}
+
+.aiw-cta-btn--outline {
+  background: transparent;
+  border: 1px solid var(--clr-amber);
+  color: var(--clr-amber);
+}
+
+/* ── QUICK REPLIES ────────────────────────────────────────── */
+#aiw-quick-replies {
+  padding: 0 0.75rem 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.aiw-qr {
+  padding: 0.35rem 0.8rem;
+  background: transparent;
+  border: 1px solid var(--clr-border);
+  border-radius: 100px;
+  color: var(--clr-amber);
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+
+.aiw-qr:hover {
+  background: var(--clr-amber-glow);
+  border-color: var(--clr-amber);
+}
+
+/* ── INPUT BAR ────────────────────────────────────────────── */
+.aiw-input-bar {
+  border-top: 1px solid var(--clr-border);
+  padding: 0.75rem;
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-end;
+  flex-shrink: 0;
+  background: var(--clr-bg-2);
+}
+
+#aiw-input {
+  flex: 1;
+  background: var(--clr-surface);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-md);
+  padding: 0.65rem 0.9rem;
+  color: var(--clr-text);
+  font-size: 0.9rem;
+  font-family: var(--font-body);
+  outline: none;
+  resize: none;
+  min-height: 40px;
+  max-height: 96px;
+  line-height: 1.4;
+  transition: border-color 0.2s;
+}
+
+#aiw-input:focus { border-color: var(--clr-amber); }
+#aiw-input::placeholder { color: var(--clr-text-dim); }
+
+.aiw-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: opacity 0.15s, transform 0.15s;
+}
+
+.aiw-btn:hover { opacity: 0.85; transform: scale(1.05); }
+
+#aiw-send {
+  background: var(--clr-amber);
+  color: #0c0d0f;
+}
+
+#aiw-voice-btn {
+  background: var(--clr-surface);
+  border: 1px solid var(--clr-border);
+  color: var(--clr-text-muted);
+}
+
+#aiw-voice-btn:hover {
+  border-color: var(--clr-amber);
+  color: var(--clr-amber);
+}
+
+#aiw-voice-btn.listening {
+  background: var(--clr-amber-glow);
+  border-color: var(--clr-amber);
+  color: var(--clr-amber);
+  animation: voiceRing 1s infinite;
+}
+
+@keyframes voiceRing {
+  0%,100% { box-shadow: 0 0 0 0 rgba(245,166,35,0.5); }
+  50%      { box-shadow: 0 0 0 8px rgba(245,166,35,0); }
+}
+
+/* ── VOICE MODE OVERLAY ───────────────────────────────────── */
+#aiw-voice-overlay {
+  position: absolute;
+  inset: 0;
+  background: var(--clr-bg);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  z-index: 10;
+  text-align: center;
+  padding: 2rem;
+}
+
+#aiw-voice-overlay.active { display: flex; }
+
+.voice-orb {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--clr-amber) 0%, var(--clr-amber-dim) 60%, transparent 100%);
+  animation: orbPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes orbPulse {
+  0%,100% { transform: scale(1);    box-shadow: 0 0 0 0 rgba(245,166,35,0.5); }
+  50%      { transform: scale(1.08); box-shadow: 0 0 0 20px rgba(245,166,35,0); }
+}
+
+.voice-label {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--clr-amber);
+}
+
+.voice-sublabel {
+  font-size: 0.85rem;
+  color: var(--clr-text-muted);
+}
+
+.voice-dismiss {
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--clr-text-dim);
+  background: none;
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+  margin-top: 0.5rem;
+}
+
+.voice-dismiss:hover {
+  color: var(--clr-text-muted);
+  border-color: var(--clr-text-muted);
+}
+
+/* ── RESPONSIVE ───────────────────────────────────────────── */
+@media (min-width: 480px) {
+  #aiw-window {
+    width: 390px;
+  }
+}
