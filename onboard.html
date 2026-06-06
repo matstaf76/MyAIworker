@@ -79,9 +79,35 @@
         aria-label="Onboarding form"
       >
 
+        <!-- Auto-detect plan from URL parameter -->
+        <script>
+          (function() {
+            var params = new URLSearchParams(window.location.search);
+            var planParam = params.get('plan');
+            var planMap = {
+              'receptionist': 'AI Receptionist — $350/month',
+              'enterprise':   'Busy Business AI — $1,000/month',
+              'standalone':   'Voice Chat Setup — $350 one-time'
+            };
+            if (planParam && planMap[planParam]) {
+              document.addEventListener('DOMContentLoaded', function() {
+                var sel = document.getElementById('plan');
+                if (sel) {
+                  for (var i = 0; i < sel.options.length; i++) {
+                    if (sel.options[i].value === planMap[planParam]) {
+                      sel.selectedIndex = i;
+                      break;
+                    }
+                  }
+                }
+              });
+            }
+          })();
+        </script>
+
         <!-- Hidden field to capture which plan they bought -->
         <input type="hidden" name="_subject" value="New MyAIworker Onboarding Submission">
-        <input type="hidden" name="_next" value="https://myaiworker.online/onboard.html?success=true">
+        <input type="hidden" name="_next" id="formspree-next" value="https://myaiworker.online/onboard.html?success=true">
         <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off">
 
         <div class="onboard-card">
