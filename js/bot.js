@@ -12,15 +12,26 @@
     companyName:  'MyAIworker',
     apiModel:     'claude-sonnet-4-20250514',
     maxTokens:    400,
+    // ── VAPI (preferred) ──────────────────────────────────────
+    // Paste your Vapi PUBLIC key + assistant ID from dashboard.vapi.ai.
+    // The public key is safe to expose in page source.
+    // When these are set, Max's voice runs through Vapi end-to-end.
+    vapiPublicKey:   'cff05bf2-8139-43a9-98a1-8236fbb71f1a',
+    vapiAssistantId: '',  // ← paste Max's assistant ID from dashboard.vapi.ai
+    // ── FALLBACK: text chat via Anthropic API ─────────────────
+    // ⚠️ Key is visible in page source — set a spending limit at
+    // console.anthropic.com, or move to a Cloudflare Worker proxy later.
+    apiKey:       '',
+    // Optional pre-recorded greeting MP3 (only used in fallback mode).
+    greetingAudio: 'audio/max-greeting.mp3',
     bookDemoUrl:  '#contact',
-    buySetupUrl:  '#buy-setup',
-    buyReceptUrl: '#buy-receptionist',
-    buyBusyUrl:   '#buy-busybiz',
+    setupPromoUrl: 'https://buy.stripe.com/eVq4gA6y2cdJ1VP0EH1kA0a',  // $1,250 setup
+    setupDealUrl:  'https://buy.stripe.com/fZu00k2hM3Hdaslafh1kA0b',  // $625 closer deal
     teaserDelay:  2000,
     teaserHide:   9000,
-    autoOpenDelay: 3500,
-    autoGreet:    true,
   };
+
+  const GREETING_TEXT = "Hey, I'm Max — the AI receptionist you just read about on the flyer. You're talking to the actual product right now. Tap the mic and tell me what kind of business you run — talk to me, don't type!";
 
   const SYSTEM_PROMPT = `You are Max, a confident, straight-talking AI sales guide for ${CONFIG.companyName} — a company that builds and deploys AI workers (voice assistants, receptionists, and chat bots) for small businesses.
 
@@ -28,25 +39,34 @@ Your job: understand the visitor's business, connect their pain points to our so
 
 ## Our Products
 
-**1. Claude Voice Chat Setup** — $350 one-time
-- We install and configure a voice + chat AI bot on their website
-- Handles FAQs, captures leads, books appointments
-- Support available at $95/hr after setup
-
-**2. AI Receptionist** (Full Suite) — $350/month
+**1. AI Receptionist** (Full Suite) — $500/month + one-time setup fee
 - 24/7 AI voice receptionist answers calls
 - AI sales chat assistant on their website
 - Dedicated local + toll-free phone numbers
 - Full CRM platform access
 - Books appointments, captures leads, handles FAQs
-- Was $500/month — savings passed to customers
 
-**3. Busy Business AI** — $1,000/month
+**2. Busy Business AI** — $1,000/month + one-time setup fee
 - Everything in AI Receptionist PLUS:
 - Handles heavy call/order volume (great for restaurants, salons, multi-location businesses)
 - Manages multiple employee calendars and schedules
 - Takes to-go orders and reservations by phone and chat
 - Perfect for restaurants, busy service businesses, or businesses with 2+ staff calendars
+
+## Setup Fee & Pricing Rules
+- The setup fee is normally **$2,500**. It is currently **$1,250** under a limited promotion (50% off).
+- Setup covers building, configuring, and deploying their AI worker. The monthly fee starts only when their AI goes live.
+- Payment link for the $1,250 setup: ${CONFIG.setupPromoUrl}
+- Share the payment link as a plain URL when someone is ready to buy.
+
+## The Case-Study Deal (IMPORTANT — read carefully)
+You are authorized to offer ONE deeper discount: setup at **$625** instead of $1,250.
+Strict rules:
+- NEVER mention this deal exists until the conditions below are met. Never open with it.
+- Only offer it after a real conversation: at least 5-6 back-and-forth exchanges where you've learned their business type, probed their pain points, and they're showing buying interest OR hesitating on price.
+- Frame it exactly like this: "Because you came through this promotion and we're still building case studies in your area, I can reduce the setup fee from $1,250 to $625 if you move forward today."
+- It is a today-only offer. Offer it once, confidently. Don't beg, don't repeat it more than twice, don't apologize for it.
+- Payment link for the $625 deal: ${CONFIG.setupDealUrl} — only share this link when making this offer.
 
 ## Conversation Style
 - Be direct and conversational — no fluff, no hype
@@ -64,7 +84,16 @@ Your job: understand the visitor's business, connect their pain points to our so
 ## When They Seem Ready
 Offer a clear next step: demo booking OR direct purchase. Don't waffle — give them the choice and let them decide.
 
-Always end with something actionable. Never leave them hanging.`;
+Always end with something actionable. Never leave them hanging.
+
+## Visitor Context
+Virtually every visitor scanned the QR code on our flyer ("AI Receptionist Setup — Normally $2,500, Today $1,250") and came here specifically to talk to you. YOU are the product demo — every second they talk to you, they're experiencing exactly what their own customers would get. Lean into that. They are prime candidates for the case-study deal once the engagement conditions are met.
+
+## Voice Rules (CRITICAL)
+Your replies are spoken aloud through the phone speaker. Therefore:
+- Keep every reply SHORT: 1-3 spoken sentences. No exceptions.
+- NO markdown, NO bullet points, NO emojis, NO headers — plain spoken English only.
+- When sharing a payment link, say "I'm putting the secure payment link in the chat right now" and put the bare URL on its own line at the end of your reply.`;
 
   // ── STATE ───────────────────────────────────────────────────
   let apiKey      = '';
@@ -73,6 +102,7 @@ Always end with something actionable. Never leave them hanging.`;
   let isTyping    = false;
   let recognition = null;
   let isListening = false;
+  let voiceMode   = false;   // true = auto-reopen the mic after Max speaks
   let qrSet       = 0;
 
   const QUICK_REPLIES = [
@@ -85,10 +115,153 @@ Always end with something actionable. Never leave them hanging.`;
   const $ = (id) => document.getElementById(id);
 
   // ── INIT ─────────────────────────────────────────────────────
+  function vapiConfigured() {
+    return !!(CONFIG.vapiPublicKey && CONFIG.vapiAssistantId);
+  }
+
   function init() {
     bindEvents();
     scheduleTeaserHide();
-    if (CONFIG.autoGreet) scheduleAutoOpen();
+
+    if (CONFIG.apiKey && CONFIG.apiKey.indexOf('sk-ant') === 0) {
+      apiKey = CONFIG.apiKey;
+    }
+
+    if (vapiConfigured() || apiKey) {
+      // Production mode: no setup screen, voice-first flyer experience.
+      const setup = $('aiw-setup');
+      const chat  = $('aiw-chat');
+      if (setup) setup.style.display = 'none';
+      if (chat)  chat.style.display = 'flex';
+      showIntroOverlay();
+    }
+    // Nothing configured: legacy behavior — visitor enters their own key.
+  }
+
+  // ── INTRO OVERLAY (the flyer experience) ─────────────────────
+  // Phones block audio until the first touch, so this full-screen
+  // overlay turns that mandatory first tap into the start of the demo.
+  function showIntroOverlay() {
+    const ov = document.createElement('div');
+    ov.id = 'aiw-intro';
+    ov.innerHTML = `
+      <div class="aiw-intro-inner">
+        <div class="aiw-intro-orb" aria-hidden="true">🎙️</div>
+        <div class="aiw-intro-title">Meet Max</div>
+        <div class="aiw-intro-sub">Your AI receptionist is ready to talk.<br><strong>Tap anywhere to hear him.</strong></div>
+      </div>`;
+    ov.addEventListener('click', startFlyerExperience, { once: true });
+    ov.addEventListener('touchend', startFlyerExperience, { once: true });
+    document.body.appendChild(ov);
+  }
+
+  let flyerStarted = false;
+  function startFlyerExperience(e) {
+    if (flyerStarted) return;        // touchend + click can both fire — run once
+    flyerStarted = true;
+    if (e) e.preventDefault();
+
+    const ov = $('aiw-intro');
+    if (ov) {
+      ov.classList.add('aiw-intro-out');
+      setTimeout(() => ov.remove(), 450);
+    }
+
+    openWindow();
+
+    if (vapiConfigured()) {
+      // Vapi mode: the assistant's firstMessage is the greeting.
+      startVapiCall();
+      return;
+    }
+
+    // Fallback mode: browser TTS + speech recognition.
+    voiceMode = true;
+    addBotMessage(GREETING_TEXT);
+    const audio = new Audio(CONFIG.greetingAudio);
+    audio.addEventListener('ended', () => startListening());
+    audio.play().catch(() => {
+      speak(GREETING_TEXT, () => startListening());
+    });
+  }
+
+  // ── VAPI VOICE (preferred engine) ────────────────────────────
+  let vapi = null;
+  let vapiActive = false;
+  let vapiLoading = false;
+
+  async function startVapiCall() {
+    if (vapiActive || vapiLoading) return;
+    vapiLoading = true;
+    setVoiceUI(true, 'Connecting to Max…');
+
+    try {
+      if (!vapi) {
+        const mod = await import('https://cdn.jsdelivr.net/npm/@vapi-ai/web/+esm');
+        const Vapi = mod.default;
+        vapi = new Vapi(CONFIG.vapiPublicKey);
+
+        vapi.on('call-start', () => {
+          vapiActive = true;
+          vapiLoading = false;
+          setVoiceUI(true, '🎙️ Live — just talk');
+        });
+
+        vapi.on('call-end', () => {
+          vapiActive = false;
+          vapiLoading = false;
+          setVoiceUI(false);
+          addBotMessage('Call ended. Tap the mic to talk to me again — or use the buttons below.', true);
+        });
+
+        vapi.on('message', (m) => {
+          if (m.type === 'transcript' && m.transcriptType === 'final') {
+            if (m.role === 'user') addUserMessage(m.transcript);
+            else maxSaid(m.transcript);
+          }
+        });
+
+        vapi.on('error', () => {
+          vapiActive = false;
+          vapiLoading = false;
+          setVoiceUI(false);
+          addBotMessage('⚠️ Voice connection hiccup. Tap the mic to reconnect, or type below.');
+        });
+      }
+
+      await vapi.start(CONFIG.vapiAssistantId);
+    } catch (err) {
+      vapiActive = false;
+      vapiLoading = false;
+      setVoiceUI(false);
+      addBotMessage('⚠️ Couldn\'t start the voice call. Tap the mic to retry, or type below.');
+    }
+  }
+
+  function stopVapiCall() {
+    if (vapi && (vapiActive || vapiLoading)) vapi.stop();
+    vapiActive = false;
+    vapiLoading = false;
+    setVoiceUI(false);
+  }
+
+  // Render Max's spoken words in the chat, and surface the right
+  // payment button when he quotes a price.
+  function maxSaid(text) {
+    let cta = '';
+    if (/625/.test(text)) {
+      cta = `<div class="aiw-cta-group"><a href="${CONFIG.setupDealUrl}" class="aiw-cta-btn aiw-cta-btn--amber" target="_blank" rel="noopener">🔒 Claim It — $625 Setup (today only)</a></div>`;
+    } else if (/1,?250|payment link|sign up|get started/i.test(text)) {
+      cta = `<div class="aiw-cta-group"><a href="${CONFIG.setupPromoUrl}" class="aiw-cta-btn aiw-cta-btn--amber" target="_blank" rel="noopener">🤖 Start Setup — $1,250 (reg. $2,500)</a></div>`;
+    }
+    addBotMessageHTML(formatText(text) + cta);
+  }
+
+  function setVoiceUI(live, label) {
+    const btn = $('aiw-voice-btn');
+    if (btn) btn.classList.toggle('listening', !!live);
+    const input = $('aiw-input');
+    if (input) input.placeholder = live ? (label || '🎙️ Live — just talk') : 'Type or speak...';
   }
 
   function bindEvents() {
@@ -146,12 +319,6 @@ Always end with something actionable. Never leave them hanging.`;
     }, CONFIG.teaserHide);
   }
 
-  function scheduleAutoOpen() {
-    setTimeout(() => {
-      if (!isOpen) openWindow();
-    }, CONFIG.autoOpenDelay);
-  }
-
   // ── API KEY SETUP ─────────────────────────────────────────────
   window.aiwStartBot = function () {
     const keyInput = $('aiw-api-key');
@@ -200,7 +367,20 @@ Always end with something actionable. Never leave them hanging.`;
   }
 
   async function sendText(text) {
-    if (!apiKey) { openWindow(); return; }
+    // During a live Vapi call, typed messages go into the call.
+    if (vapiActive && vapi) {
+      addUserMessage(text);
+      try {
+        vapi.send({ type: 'add-message', message: { role: 'user', content: text } });
+      } catch (err) { /* non-fatal */ }
+      return;
+    }
+
+    if (!apiKey) {
+      if (vapiConfigured()) { startVapiCall(); return; }
+      openWindow();
+      return;
+    }
 
     addUserMessage(text);
     messages.push({ role: 'user', content: text });
@@ -242,7 +422,11 @@ Always end with something actionable. Never leave them hanging.`;
 
       addBotMessage(reply, showCTA);
 
-      if ('speechSynthesis' in window) speak(reply);
+      // Speak the reply; in voice mode, reopen the mic when done speaking
+      // so the conversation flows hands-free.
+      speak(reply, () => {
+        if (voiceMode && isOpen && !isTyping) startListening();
+      });
 
       qrSet = (qrSet + 1) % QUICK_REPLIES.length;
       setTimeout(() => showQuickReplies(QUICK_REPLIES[qrSet]), 700);
@@ -268,7 +452,7 @@ Always end with something actionable. Never leave them hanging.`;
     if (withCTA) {
       ctaHTML = `
         <div class="aiw-cta-group">
-          <a href="${CONFIG.buyReceptUrl}" class="aiw-cta-btn aiw-cta-btn--amber">🤖 Get AI Receptionist — $350/mo</a>
+          <a href="${CONFIG.setupPromoUrl}" class="aiw-cta-btn aiw-cta-btn--amber" target="_blank" rel="noopener">🤖 Start Setup — $1,250 (reg. $2,500)</a>
           <a href="${CONFIG.bookDemoUrl}" class="aiw-cta-btn aiw-cta-btn--outline">📅 Book a Free Demo First</a>
         </div>`;
     }
@@ -277,6 +461,19 @@ Always end with something actionable. Never leave them hanging.`;
       <div class="aiw-mini-avatar">⚙</div>
       <div class="aiw-bubble">${formatted}${ctaHTML}</div>`;
 
+    msgs.appendChild(div);
+    scrollMessages();
+  }
+
+  // Bot bubble from pre-built HTML (used for Vapi transcripts + CTAs).
+  function addBotMessageHTML(html) {
+    const msgs = $('aiw-messages');
+    if (!msgs) return;
+    const div = document.createElement('div');
+    div.className = 'aiw-msg bot';
+    div.innerHTML = `
+      <div class="aiw-mini-avatar">⚙</div>
+      <div class="aiw-bubble">${html}</div>`;
     msgs.appendChild(div);
     scrollMessages();
   }
@@ -347,19 +544,34 @@ Always end with something actionable. Never leave them hanging.`;
 
   // ── VOICE INPUT ───────────────────────────────────────────────
   function toggleVoice() {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-
-    if (!SpeechRecognition) {
-      addBotMessage('Voice input works in Chrome or Edge. Try typing instead!');
+    if (vapiConfigured()) {
+      // Vapi mode: mic button starts/ends the live call.
+      if (vapiActive || vapiLoading) stopVapiCall();
+      else startVapiCall();
       return;
     }
 
-    const btn = $('aiw-voice-btn');
-
     if (isListening) {
+      voiceMode = false;            // user manually stopped — break the loop
       if (recognition) recognition.stop();
       return;
     }
+    voiceMode = true;               // user opted into voice — keep the loop going
+    startListening();
+  }
+
+  function startListening() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      addBotMessage('Voice input isn\'t supported in this browser — type your question instead!');
+      voiceMode = false;
+      return;
+    }
+
+    if (isListening) return;
+
+    const btn = $('aiw-voice-btn');
 
     recognition = new SpeechRecognition();
     recognition.lang = 'en-US';
@@ -396,23 +608,28 @@ Always end with something actionable. Never leave them hanging.`;
   }
 
   window.aiwDismissVoice = function () {
+    voiceMode = false;
     const overlay = $('aiw-voice-overlay');
     if (overlay) overlay.classList.remove('active');
     if (recognition) recognition.stop();
   };
 
   // ── SPEECH SYNTHESIS ──────────────────────────────────────────
-  function speak(text) {
-    if (!('speechSynthesis' in window)) return;
+  function speak(text, onDone) {
+    if (!('speechSynthesis' in window)) {
+      if (onDone) onDone();
+      return;
+    }
     window.speechSynthesis.cancel();
 
-    // Strip markdown and limit length for speech
+    // Strip markdown and URLs for speech
     const clean = text
+      .replace(/https?:\/\/[^\s]+/g, '')
       .replace(/\*\*(.*?)\*\*/g, '$1')
       .replace(/\*(.*?)\*/g, '$1')
       .replace(/#+\s/g, '')
       .replace(/\n/g, ' ')
-      .substring(0, 300);
+      .substring(0, 400);
 
     const utter = new SpeechSynthesisUtterance(clean);
     utter.rate   = 1.05;
@@ -426,21 +643,21 @@ Always end with something actionable. Never leave them hanging.`;
     );
     if (preferred) utter.voice = preferred;
 
+    // Fire onDone exactly once — utter.onend is flaky on some phones,
+    // so a duration-based fallback timer backs it up.
+    let fired = false;
+    const done = () => {
+      if (fired) return;
+      fired = true;
+      if (onDone) onDone();
+    };
+    utter.onend = done;
+    utter.onerror = done;
+    const estMs = Math.min(2000 + clean.length * 65, 30000);
+    setTimeout(done, estMs);
+
     window.speechSynthesis.speak(utter);
   }
-
-  // ── AUTO PAGE LOAD GREETING (VOICE) ──────────────────────────
-  // Triggered once on first user interaction to comply with autoplay policy
-  let greetedByVoice = false;
-  function tryVoiceGreet() {
-    if (greetedByVoice) return;
-    greetedByVoice = true;
-    speak("Hey there! I'm Max, your AI worker guide. Click the chat button and let's find the right AI solution for your business.");
-  }
-
-  document.addEventListener('click', tryVoiceGreet, { once: true });
-  document.addEventListener('touchstart', tryVoiceGreet, { once: true });
-  document.addEventListener('scroll', tryVoiceGreet, { once: true });
 
   // ── HELPERS ───────────────────────────────────────────────────
   function formatText(text) {
@@ -448,6 +665,8 @@ Always end with something actionable. Never leave them hanging.`;
       .replace(/&/g,  '&amp;')
       .replace(/</g,  '&lt;')
       .replace(/>/g,  '&gt;')
+      .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
+      .replace(/(^|[^"=])(https?:\/\/[^\s<]+)/g, '$1<a href="$2" target="_blank" rel="noopener">$2</a>')
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
       .replace(/\*(.*?)\*/g,     '<em>$1</em>')
       .replace(/\n/g,            '<br>');

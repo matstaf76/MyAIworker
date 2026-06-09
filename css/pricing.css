@@ -266,27 +266,15 @@
   .pricing-grid {
     grid-template-columns: 1fr 1fr;
   }
-
-  /* Make onetime card span full width on tablet if 3 cards */
-  .pricing-card--onetime {
-    grid-column: 1 / -1;
-    max-width: 480px;
-    margin-inline: auto;
-    width: 100%;
-  }
 }
 
 /* ── RESPONSIVE: DESKTOP 900px+ ───────────────────────────── */
 @media (min-width: 900px) {
   .pricing-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     align-items: start;
-  }
-
-  .pricing-card--onetime {
-    grid-column: auto;
-    max-width: none;
-    margin-inline: 0;
+    max-width: 880px;
+    margin-inline: auto;
   }
 
   .pricing-card--featured {
