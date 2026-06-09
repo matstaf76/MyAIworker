@@ -17,7 +17,7 @@
     // The public key is safe to expose in page source.
     // When these are set, Max's voice runs through Vapi end-to-end.
     vapiPublicKey:   'cff05bf2-8139-43a9-98a1-8236fbb71f1a',
-    vapiAssistantId: '',  // ← paste Max's assistant ID from dashboard.vapi.ai
+    vapiAssistantId: 'ef9e7b01-ad74-43aa-869e-c3dd56b6de67',  // ← paste Max's assistant ID from dashboard.vapi.ai
     // ── FALLBACK: text chat via Anthropic API ─────────────────
     // ⚠️ Key is visible in page source — set a spending limit at
     // console.anthropic.com, or move to a Cloudflare Worker proxy later.
