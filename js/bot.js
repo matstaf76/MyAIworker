@@ -17,7 +17,7 @@
     // The public key is safe to expose in page source.
     // When these are set, Max's voice runs through Vapi end-to-end.
     vapiPublicKey:   'b300db1b-37d2-4af9-ac4d-77430e594542',
-    vapiAssistantId: 'ef9e7b01-ad74-43aa-869e-c3dd56b6de67',  // ← paste Max's assistant ID from dashboard.vapi.ai
+    vapiAssistantId: 'ef9e7b01-ad74-43aa-869e-c3dd56b6de67',  // Max's assistant ID
     // ── FALLBACK: text chat via Anthropic API ─────────────────
     // ⚠️ Key is visible in page source — set a spending limit at
     // console.anthropic.com, or move to a Cloudflare Worker proxy later.
@@ -197,8 +197,12 @@ Your replies are spoken aloud through the phone speaker. Therefore:
 
     try {
       if (!vapi) {
-        const mod = await import('https://cdn.jsdelivr.net/npm/@vapi-ai/web/+esm');
-        const Vapi = mod.default;
+        // Version pinned + interop-safe unwrap: jsDelivr's +esm build wraps the
+        // class in a nested default ({ default: { default: VapiClass } }), so
+        // `new mod.default()` throws "not a constructor" and the call dies
+        // before the mic is ever requested.
+        const mod = await import('https://cdn.jsdelivr.net/npm/@vapi-ai/web@2.5.2/+esm');
+        const Vapi = (mod.default && mod.default.default) ? mod.default.default : mod.default;
         vapi = new Vapi(CONFIG.vapiPublicKey);
 
         vapi.on('call-start', () => {
