@@ -264,6 +264,18 @@ body::before {
 
 .nav-logo span { color: var(--clr-amber); }
 
+.nav-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.nav-logo-img {
+  height: 38px;
+  width: auto;
+  display: block;
+}
+
 .nav-links {
   display: none;
   gap: 1.5rem;

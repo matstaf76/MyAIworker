@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- MyAIworker mascot — transparent background -->
+  <!-- waving arm (up-left) -->
+  <path d="M196 304 Q138 276 112 208" fill="none" stroke="#2E8F17" stroke-width="50" stroke-linecap="round"/>
+  <path d="M196 304 Q138 276 112 208" fill="none" stroke="#57C211" stroke-width="34" stroke-linecap="round"/>
+  <!-- resting arm (down-right) -->
+  <path d="M318 304 Q356 334 366 386" fill="none" stroke="#2E8F17" stroke-width="50" stroke-linecap="round"/>
+  <path d="M318 304 Q356 334 366 386" fill="none" stroke="#57C211" stroke-width="34" stroke-linecap="round"/>
+  <!-- antenna -->
+  <line x1="256" y1="92" x2="256" y2="54" stroke="#2E8F17" stroke-width="12"/>
+  <circle cx="256" cy="40" r="16" fill="#57C211" stroke="#2E8F17" stroke-width="8"/>
+  <!-- ears -->
+  <rect x="116" y="138" width="40" height="68" rx="18" fill="#57C211" stroke="#2E8F17" stroke-width="8"/>
+  <rect x="356" y="138" width="40" height="68" rx="18" fill="#57C211" stroke="#2E8F17" stroke-width="8"/>
+  <!-- head -->
+  <rect x="148" y="86" width="216" height="172" rx="54" fill="#57C211" stroke="#2E8F17" stroke-width="10"/>
+  <!-- face plate -->
+  <rect x="180" y="116" width="152" height="106" rx="24" fill="#FFFFFF" stroke="#2E8F17" stroke-width="8"/>
+  <!-- happy closed eyes -->
+  <path d="M210 174 Q226 150 242 174" fill="none" stroke="#2E8F17" stroke-width="10" stroke-linecap="round"/>
+  <path d="M270 174 Q286 150 302 174" fill="none" stroke="#2E8F17" stroke-width="10" stroke-linecap="round"/>
+  <!-- smile -->
+  <path d="M236 190 Q256 206 276 190" fill="none" stroke="#2E8F17" stroke-width="9" stroke-linecap="round"/>
+  <!-- neck -->
+  <rect x="234" y="252" width="44" height="28" fill="#57C211" stroke="#2E8F17" stroke-width="6"/>
+  <!-- polo shirt -->
+  <path d="M188 288 Q256 258 324 288 L342 462 Q256 490 170 462 Z" fill="#C42BC8" stroke="#2E8F17" stroke-width="9" stroke-linejoin="round"/>
+  <!-- collar -->
+  <path d="M220 278 L256 314 L292 278 Q256 262 220 278 Z" fill="#C42BC8" stroke="#2E8F17" stroke-width="7" stroke-linejoin="round"/>
+  <!-- placket + buttons -->
+  <line x1="256" y1="314" x2="256" y2="352" stroke="#2E8F17" stroke-width="5"/>
+  <circle cx="256" cy="326" r="5" fill="#FFFFFF"/>
+  <circle cx="256" cy="344" r="5" fill="#FFFFFF"/>
+  <!-- shirt text -->
+  <g font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="27" fill="#FFFFFF" text-anchor="middle">
+    <text x="256" y="394">Hey I'm</text>
+    <text x="256" y="424">working</text>
+    <text x="256" y="454">here!</text>
+  </g>
+</svg>
