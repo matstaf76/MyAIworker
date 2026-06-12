@@ -127,6 +127,12 @@ Your replies are spoken aloud through the phone speaker. Therefore:
       apiKey = CONFIG.apiKey;
     }
 
+    if (vapiConfigured()) {
+      // Warm the voice SDK while the visitor reads the intro overlay,
+      // so the first tap connects instead of downloading.
+      setTimeout(() => { loadVapiMod().catch(() => {}); }, 300);
+    }
+
     if (vapiConfigured() || apiKey) {
       // Production mode: no setup screen, voice-first flyer experience.
       const setup = $('aiw-setup');
@@ -189,6 +195,16 @@ Your replies are spoken aloud through the phone speaker. Therefore:
   let vapi = null;
   let vapiActive = false;
   let vapiLoading = false;
+  let vapiModPromise = null;
+
+  // Kick off the SDK download once; safe to call repeatedly.
+  function loadVapiMod() {
+    if (!vapiModPromise) {
+      vapiModPromise = import('https://cdn.jsdelivr.net/npm/@vapi-ai/web@2.5.2/+esm')
+        .catch((err) => { vapiModPromise = null; throw err; });
+    }
+    return vapiModPromise;
+  }
 
   async function startVapiCall() {
     if (vapiActive || vapiLoading) return;
@@ -201,7 +217,7 @@ Your replies are spoken aloud through the phone speaker. Therefore:
         // class in a nested default ({ default: { default: VapiClass } }), so
         // `new mod.default()` throws "not a constructor" and the call dies
         // before the mic is ever requested.
-        const mod = await import('https://cdn.jsdelivr.net/npm/@vapi-ai/web@2.5.2/+esm');
+        const mod = await loadVapiMod();
         const Vapi = (mod.default && mod.default.default) ? mod.default.default : mod.default;
         vapi = new Vapi(CONFIG.vapiPublicKey);
 
