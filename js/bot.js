@@ -122,6 +122,8 @@ Your replies are spoken aloud through the phone speaker. Therefore:
   function init() {
     bindEvents();
     scheduleTeaserHide();
+    injectMicStyles();
+    injectMicNotice();
 
     if (CONFIG.apiKey && CONFIG.apiKey.indexOf('sk-ant') === 0) {
       apiKey = CONFIG.apiKey;
@@ -191,6 +193,62 @@ Your replies are spoken aloud through the phone speaker. Therefore:
     });
   }
 
+  // ── MIC NOTICE (so visitors know to allow the mic) ───────────
+  // Max is voice-first: the browser asks for mic permission the first
+  // time a call starts. If the visitor dismisses or has blocked that
+  // prompt, Max can greet but never hears them. These notices make the
+  // one required action — "Allow the microphone" — impossible to miss.
+  function injectMicStyles() {
+    if (document.getElementById('aiw-mic-style')) return;
+    const css = `
+      .aiw-mic-notice{display:flex;align-items:flex-start;gap:.55rem;margin-top:1.1rem;
+        padding:.7rem .95rem;border:1px solid rgba(140,242,90,.38);
+        background:rgba(140,242,90,.08);border-radius:11px;color:#d7eccb;
+        font-size:.85rem;line-height:1.4;max-width:540px}
+      .aiw-mic-notice strong{color:#a9f582}
+      .aiw-mic-notice .aiw-mic-ico{font-size:1.05rem;line-height:1.3;flex:0 0 auto}
+      .aiw-mic-banner{margin:0 0 .8rem;padding:.7rem .85rem;
+        border:1px solid rgba(140,242,90,.42);background:rgba(140,242,90,.1);
+        border-radius:11px;color:#e2f5d7;font-size:.85rem;line-height:1.45}
+      .aiw-mic-banner strong{color:#bdf79c}
+      .aiw-mic-banner .aiw-mic-sub{display:block;margin-top:.4rem;
+        color:#a6c79a;font-size:.78rem}`;
+    const el = document.createElement('style');
+    el.id = 'aiw-mic-style';
+    el.textContent = css;
+    document.head.appendChild(el);
+  }
+
+  // Slim banner on the page itself, right under the hero "talk to Max" prompt.
+  function injectMicNotice() {
+    if (document.getElementById('aiw-mic-notice')) return;
+    const anchor = document.querySelector('.hero-voice-prompt');
+    if (!anchor) return;
+    const bar = document.createElement('div');
+    bar.id = 'aiw-mic-notice';
+    bar.className = 'aiw-mic-notice';
+    bar.innerHTML =
+      '<span class="aiw-mic-ico" aria-hidden="true">🎙️</span>' +
+      '<span>Max talks back by <strong>voice</strong>. When you start a chat, your browser ' +
+      'will ask for your microphone — tap <strong>Allow</strong>, then just talk to him.</span>';
+    anchor.insertAdjacentElement('afterend', bar);
+  }
+
+  // In-chat banner shown the moment a call starts, with a "blocked it?" recovery tip.
+  function showMicBanner() {
+    const msgs = $('aiw-messages');
+    if (!msgs || document.getElementById('aiw-mic-banner')) return;
+    const div = document.createElement('div');
+    div.id = 'aiw-mic-banner';
+    div.className = 'aiw-mic-banner';
+    div.innerHTML =
+      '🎙️ <strong>Allow microphone access</strong> when your browser asks — then just talk to Max.' +
+      '<span class="aiw-mic-sub">Already blocked it? Click the 🔒 lock icon in the address bar → ' +
+      'set <strong>Microphone</strong> to <strong>Allow</strong> → reload the page.</span>';
+    msgs.appendChild(div);
+    scrollMessages();
+  }
+
   // ── VAPI VOICE (preferred engine) ────────────────────────────
   let vapi = null;
   let vapiActive = false;
@@ -210,6 +268,7 @@ Your replies are spoken aloud through the phone speaker. Therefore:
     if (vapiActive || vapiLoading) return;
     vapiLoading = true;
     setVoiceUI(true, 'Connecting to Max…');
+    showMicBanner();
 
     try {
       if (!vapi) {
