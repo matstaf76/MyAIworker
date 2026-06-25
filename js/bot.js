@@ -156,7 +156,7 @@ Your replies are spoken aloud through the phone speaker. Therefore:
       <div class="aiw-intro-inner">
         <div class="aiw-intro-orb" aria-hidden="true">🎙️</div>
         <div class="aiw-intro-title">Meet Max</div>
-        <div class="aiw-intro-sub">Your AI receptionist is ready to talk.<br><strong>Tap anywhere to hear him.</strong></div>
+        <div class="aiw-intro-sub">Max talks back <strong>out loud</strong>. Tap anywhere to start — then tap <strong>“Allow”</strong> when your browser asks to use your <strong>microphone</strong> 🎙️ so Max can hear you.</div>
       </div>`;
     ov.addEventListener('click', startFlyerExperience, { once: true });
     ov.addEventListener('touchend', startFlyerExperience, { once: true });
