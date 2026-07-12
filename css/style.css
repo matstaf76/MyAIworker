@@ -110,6 +110,12 @@ body::before {
   background-color: var(--clr-bg-3);
 }
 
+.section--muted {
+  background-color: var(--clr-bg-2);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
 .text-center { text-align: center; }
 .text-amber  { color: var(--clr-amber); }
 .text-muted  { color: var(--clr-text-muted); }

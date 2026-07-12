@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /onboard.html
+
+Sitemap: https://myaiworker.online/sitemap.xml

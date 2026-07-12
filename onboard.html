@@ -7,7 +7,7 @@
   <meta name="description" content="MyAIworker — Complete your onboarding to get your AI worker set up.">
   <title>Welcome! Let's Build Your AI Worker — MyAIworker</title>
   <link rel="icon" href="favicon.ico" sizes="48x48">
-  <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+  <link rel="icon" type="image/png" sizes="192x192" href="images/icon-192.png">
   <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/onboard.css">
@@ -17,7 +17,7 @@
   <!-- ── NAV ───────────────────────────────────────────────── -->
   <nav class="site-nav" role="navigation" aria-label="Main navigation">
     <div class="container nav-inner">
-      <a href="/" class="nav-logo"><img src="images/logo.svg" alt="MyAIworker mascot" class="nav-logo-img">My<span>AI</span>Worker</a>
+      <a href="/" class="nav-logo"><img src="images/logo-512.png" alt="MyAIworker mascot" class="nav-logo-img">My<span>AI</span>Worker</a>
     </div>
   </nav>
 
@@ -88,9 +88,9 @@
             var params = new URLSearchParams(window.location.search);
             var planParam = params.get('plan');
             var planMap = {
-              'receptionist': 'AI Receptionist — $350/month',
-              'enterprise':   'Busy Business AI — $1,000/month',
-              'standalone':   'Voice Chat Setup — $350 one-time'
+              'receptionist': 'AI Receptionist — $500/month',
+              'busybiz':      'Busy Business AI — $1,000/month',
+              'enterprise':   'Busy Business AI — $1,000/month'
             };
             if (planParam && planMap[planParam]) {
               document.addEventListener('DOMContentLoaded', function() {
@@ -125,8 +125,7 @@
                 <label for="plan">Plan Purchased <span class="required" aria-label="required">*</span></label>
                 <select id="plan" name="plan" class="form-control" required>
                   <option value="" disabled selected>Select your plan…</option>
-                  <option value="Voice Chat Setup — $350 one-time">Voice Chat Setup — $350 one-time</option>
-                  <option value="AI Receptionist — $350/month">AI Receptionist — $350/month</option>
+                  <option value="AI Receptionist — $500/month">AI Receptionist — $500/month</option>
                   <option value="Busy Business AI — $1,000/month">Busy Business AI — $1,000/month</option>
                 </select>
               </div>
