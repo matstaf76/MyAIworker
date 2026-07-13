@@ -24,7 +24,6 @@
     apiKey:       '',
     // Optional pre-recorded greeting MP3 (only used in fallback mode).
     greetingAudio: 'audio/max-greeting.mp3',
-    bookDemoUrl:  '#contact',
     setupPromoUrl: 'https://buy.stripe.com/eVq4gA6y2cdJ1VP0EH1kA0a',  // $1,250 setup
     setupDealUrl:  'https://buy.stripe.com/fZu00k2hM3Hdaslafh1kA0b',  // $625 closer deal
     teaserDelay:  2000,
@@ -532,7 +531,6 @@ Your replies are spoken aloud through the phone speaker. Therefore:
       ctaHTML = `
         <div class="aiw-cta-group">
           <a href="${CONFIG.setupPromoUrl}" class="aiw-cta-btn aiw-cta-btn--amber" target="_blank" rel="noopener">🤖 Start Setup — $1,250 (reg. $2,500)</a>
-          <a href="${CONFIG.bookDemoUrl}" class="aiw-cta-btn aiw-cta-btn--outline">📅 Book a Free Demo First</a>
         </div>`;
     }
 
