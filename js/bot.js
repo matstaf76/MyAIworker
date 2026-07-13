@@ -323,11 +323,15 @@ Your replies are spoken aloud through the phone speaker. Therefore:
     setVoiceUI(false);
   }
 
+  let dealOffered = false;
+
   // Render Max's spoken words in the chat, and surface the right
   // payment button when he quotes a price.
   function maxSaid(text) {
     let cta = '';
-    if (/625/.test(text)) {
+    const is625 = /625|6\s+25|six\s*(?:hundred\s*(?:and\s*)?)?twenty[\s-]*five/i.test(text);
+    if (is625) dealOffered = true;
+    if (dealOffered) {
       cta = `<div class="aiw-cta-group"><a href="${CONFIG.setupDealUrl}" class="aiw-cta-btn aiw-cta-btn--amber" target="_blank" rel="noopener">🔒 Claim It — $625 Setup (today only)</a></div>`;
     } else if (/1,?250|payment link|sign up|get started/i.test(text)) {
       cta = `<div class="aiw-cta-group"><a href="${CONFIG.setupPromoUrl}" class="aiw-cta-btn aiw-cta-btn--amber" target="_blank" rel="noopener">🤖 Start Setup — $1,250 (reg. $2,500)</a></div>`;
