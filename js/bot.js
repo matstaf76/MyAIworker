@@ -26,6 +26,7 @@
     greetingAudio: 'audio/max-greeting.mp3',
     setupPromoUrl: 'https://buy.stripe.com/eVq4gA6y2cdJ1VP0EH1kA0a',  // $1,250 setup
     setupDealUrl:  'https://buy.stripe.com/fZu00k2hM3Hdaslafh1kA0b',  // $625 closer deal
+    setupUrl:      'https://myaiworker.online/onboard.html',          // typed intake form (Formspree)
     teaserDelay:  2000,
     teaserHide:   9000,
   };
