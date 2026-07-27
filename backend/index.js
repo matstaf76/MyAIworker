@@ -123,28 +123,37 @@ function pickBestMatch(places, queriedName, city) {
 
   let best = null;
   let bestScore = -Infinity;
+  let bestNameMatch = 0;
 
   for (const p of places) {
     const name = normalize(p.displayName && p.displayName.text);
     const addr = normalize(p.formattedAddress);
-    let score = 0;
 
-    if (name && name === wantName) score += 4;
-    if (nameTokens.length) {
-      const hits = nameTokens.filter((t) => name.includes(t)).length;
-      score += (hits / nameTokens.length) * 3;
-    }
-    if (wantCity && addr.includes(wantCity)) score += 3;
+    // Fraction of the words they said that appear in this listing's name.
+    const nameMatch = name && name === wantName
+      ? 1
+      : (nameTokens.length
+          ? nameTokens.filter((t) => name.includes(t)).length / nameTokens.length
+          : 0);
+    const cityMatch = !!(wantCity && addr.includes(wantCity));
+
+    let score = nameMatch * 4 + (cityMatch ? 3 : 0);
     if (p.businessStatus === 'CLOSED_PERMANENTLY') score -= 5;
 
-    if (score > bestScore) { bestScore = score; best = p; }
+    if (score > bestScore) { bestScore = score; best = p; bestNameMatch = nameMatch; }
   }
 
-  // Never return nothing when Google gave us something — Max worked fine off
-  // a bare business name before and must keep working. Below the confidence
-  // bar we still hand back the top hit, just flagged so Max hedges instead of
-  // reciting a stranger's phone number as fact.
-  return { place: best || places[0], confident: bestScore >= 2 };
+  // Confidence requires an actual NAME signal. A city match alone only proves
+  // Google returned some business in the right town — scoring city at 3 against
+  // a threshold of 2 meant a nonsense name matched a random local restaurant and
+  // was reported as fact. Caught by a live test against the deployed service.
+  const confident = bestNameMatch >= 0.5;
+
+  // Never return nothing when Google gave us something — Max worked fine off a
+  // bare business name before and must keep working. Below the bar we still hand
+  // back the top hit, just flagged so Max hedges instead of reciting a
+  // stranger's phone number as fact.
+  return { place: best || places[0], confident };
 }
 
 // ── Build a spoken-English summary Max can use ─────────────────
