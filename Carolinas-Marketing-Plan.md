@@ -95,7 +95,7 @@ Proposed: `MyAIworker — AI Receptionists for NC & SC Small Businesses`
 | Problem/solution | "How many calls did your restaurant miss last night while you were slammed?" |
 | Demo | Screen-record Max handling a live question on the site |
 | Social proof | "Small business in Charlotte saved X hours/week" (use Max conversation as example) |
-| Behind the scenes | How a new AI worker gets built in 30 days |
+| Behind the scenes | How a new AI worker gets built and goes live in 3 business days |
 | FAQ answer | "Can an AI really book appointments?" — short video answer |
 | Local event tie-in | Tag Charlotte Restaurant Week, etc. |
 | Objection handling | "I don't trust AI with my customers" — honest response |
@@ -106,7 +106,7 @@ Proposed: `MyAIworker — AI Receptionists for NC & SC Small Businesses`
 >
 > We built an AI that picks up every single one. Books reservations. Takes to-go orders. Answers your most-asked questions. 24/7.
 >
-> It's called MyAIworker — and it runs for $500/month, starting 30 days after you sign up.
+> It's called MyAIworker — live in 3 business days, and your first $500/month payment isn't due until 30 days after that.
 >
 > Tap the link in bio to meet Max, our AI demo. He'll show you exactly how it works.
 

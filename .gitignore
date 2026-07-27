@@ -1,0 +1,6 @@
+# Secrets — never commit
+backend/secrets.sh
+backend/.env
+
+# Node
+node_modules/
