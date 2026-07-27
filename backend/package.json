@@ -1,0 +1,10 @@
+{
+  "name": "myaiworker-business-lookup",
+  "version": "1.0.0",
+  "description": "Cloud Function: looks up a prospect's business via Google Places API for Max (Vapi voice agent)",
+  "main": "index.js",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {}
+}

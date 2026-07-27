@@ -1,0 +1,25 @@
+{
+  "_comment": "Add this tool to Max's Vapi assistant: dashboard.vapi.ai → Assistants → Max → Tools tab → Add Tool → Server",
+  "type": "function",
+  "server": {
+    "url": "https://business-lookup-157923234975.us-central1.run.app"
+  },
+  "function": {
+    "name": "lookup_business",
+    "description": "Look up a prospect's business on Google to get their name, phone number, website, hours, ratings, and whether they have gaps in their customer reach. Call this as soon as the user mentions their business name or type. Use the returned info naturally in conversation to show you know their situation.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "businessName": {
+          "type": "string",
+          "description": "The name of their business, e.g. 'Joe's Barbershop' or 'Charlotte Plumbing Co'"
+        },
+        "city": {
+          "type": "string",
+          "description": "City or area they're in, e.g. 'Charlotte NC'. Include if they've mentioned it."
+        }
+      },
+      "required": ["businessName"]
+    }
+  }
+}
