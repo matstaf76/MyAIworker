@@ -35,7 +35,7 @@
 
   const SYSTEM_PROMPT = `You are Max, a confident, straight-talking AI sales guide for ${CONFIG.companyName} — a company that builds and deploys AI workers (voice assistants, receptionists, and chat bots) for small businesses.
 
-Your job: understand the visitor's business, connect their pain points to our solutions, and guide them toward a purchase or demo booking.
+Your job: understand the visitor's business, connect their pain points to our solutions, and guide them toward a purchase on this call.
 
 ## Our Products
 
@@ -55,7 +55,7 @@ Your job: understand the visitor's business, connect their pain points to our so
 
 ## Setup Fee & Pricing Rules
 - The setup fee is normally **$2,500**. It is currently **$1,250** under a limited promotion (50% off).
-- Setup covers building, configuring, and deploying their AI worker. The monthly fee starts only when their AI goes live.
+- Setup covers building, configuring, and deploying their AI worker. Their AI goes live within 3 business days (holidays and long weekends can add a day) — guaranteed, or the setup fee is refunded. The first monthly payment isn't due until 30 days AFTER go-live, so nothing monthly is due today.
 - Payment link for the $1,250 setup: ${CONFIG.setupPromoUrl}
 - Share the payment link as a plain URL when someone is ready to buy.
 
@@ -73,7 +73,7 @@ Strict rules:
 - Ask ONE question at a time to understand their situation
 - Keep responses to 2-4 sentences max unless explaining a product
 - Lead with value, not features
-- After 3-4 exchanges naturally introduce booking a demo or buying
+- After 3-4 exchanges ask for the sale — buying is the only outcome on offer
 
 ## Key Pain Points to Probe
 - Are they missing calls after hours?
@@ -82,7 +82,10 @@ Strict rules:
 - Are they losing customers to competitors who respond faster?
 
 ## When They Seem Ready
-Offer a clear next step: demo booking OR direct purchase. Don't waffle — give them the choice and let them decide.
+Ask for the purchase directly. Don't waffle.
+
+## There Is No Demo To Book — Ever
+You ARE the demo; there is nothing further to schedule. Never offer to book a demo, schedule a call, arrange a callback, or send information later — none of those exist. If they won't buy, close it gracefully and let them go: "No problem at all — maybe we can use AI to help you some other way in the future. Thanks for trying me out."
 
 Always end with something actionable. Never leave them hanging.
 
@@ -108,7 +111,7 @@ Your replies are spoken aloud through the phone speaker. Therefore:
   const QUICK_REPLIES = [
     ['What can an AI receptionist do?', 'Tell me about pricing', 'How fast can I get set up?'],
     ['I run a restaurant', 'I have a service business', 'I run a medical / law office'],
-    ['Do you offer a free trial?', 'What\'s the ROI?', 'Can it handle calls after hours?'],
+    ['How soon can my AI be live?', 'What\'s the ROI?', 'Can it handle calls after hours?'],
   ];
 
   // ── DOM REFS ─────────────────────────────────────────────────
@@ -212,7 +215,16 @@ Your replies are spoken aloud through the phone speaker. Therefore:
         border-radius:11px;color:#e2f5d7;font-size:.85rem;line-height:1.45}
       .aiw-mic-banner strong{color:#bdf79c}
       .aiw-mic-banner .aiw-mic-sub{display:block;margin-top:.4rem;
-        color:#a6c79a;font-size:.78rem}`;
+        color:#a6c79a;font-size:.78rem}
+      .aiw-browser-warn{margin:0 0 .8rem;padding:.8rem .95rem;
+        border:1px solid rgba(255,176,60,.5);background:rgba(255,176,60,.11);
+        border-radius:11px;color:#f6e6cd;font-size:.87rem;line-height:1.5}
+      .aiw-browser-warn strong{color:#ffc978}
+      .aiw-browser-warn .aiw-warn-steps{display:block;margin-top:.45rem;
+        color:#dcc6a3;font-size:.79rem}
+      .aiw-copy-link{margin-top:.6rem;display:inline-block;padding:.42rem .8rem;
+        border:1px solid rgba(255,176,60,.6);background:rgba(255,176,60,.16);
+        color:#ffd79a;border-radius:8px;font-size:.8rem;cursor:pointer}`;
     const el = document.createElement('style');
     el.id = 'aiw-mic-style';
     el.textContent = css;
@@ -249,6 +261,96 @@ Your replies are spoken aloud through the phone speaker. Therefore:
     scrollMessages();
   }
 
+  // ── IN-APP BROWSER GUARD ─────────────────────────────────────
+  // Flyer QR codes get scanned from inside Instagram, Facebook, TikTok and
+  // similar in-app browsers, and most of those webviews block or silently
+  // fail getUserMedia. Max is the demo, so a dead mic on first contact loses
+  // the sale outright. Detect it up front and route them to a real browser
+  // instead of letting vapi.start() fail with a generic "hiccup" message.
+  const WEBVIEWS = [
+    [/Instagram/i,                      'Instagram'],
+    [/FBAN|FBAV|FB_IAB|FBIOS/i,         'Facebook'],
+    [/Messenger/i,                      'Messenger'],
+    [/TikTok|BytedanceWebview|musical_ly/i, 'TikTok'],
+    [/Snapchat/i,                       'Snapchat'],
+    [/LinkedInApp/i,                    'LinkedIn'],
+    [/Pinterest/i,                      'Pinterest'],
+    [/WhatsApp/i,                       'WhatsApp'],
+    [/Twitter/i,                        'X'],
+    [/\bLine\//i,                       'LINE'],
+  ];
+
+  // Name of the host app, used only to WORD the advice — never to block.
+  function webviewName() {
+    const ua = navigator.userAgent || '';
+    for (const [re, name] of WEBVIEWS) {
+      if (re.test(ua)) return name;
+    }
+    if (/Android.*;\s*wv\)/i.test(ua)) return 'this app';
+    return null;
+  }
+
+  // Returns null when voice should work, else a short reason string.
+  //
+  // We PROBE for the microphone instead of trusting the user agent. In-app
+  // browsers differ by app version and platform and plenty of them do work —
+  // blocking a visitor whose mic was fine is a worse failure than the one
+  // we're fixing. A UA match alone never stops a call.
+  async function micCheck() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      return webviewName() || 'this browser';
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach((t) => t.stop());  // Vapi opens its own stream
+      return null;
+    } catch (err) {
+      // The visitor simply declined the prompt — that's recoverable, and the
+      // existing mic banner already explains how to undo it. Carry on exactly
+      // as before rather than sending them away.
+      if (err && (err.name === 'NotAllowedError' || err.name === 'SecurityError')) return null;
+      // NotFoundError / NotReadableError / AbortError in a webview means the
+      // environment genuinely can't hand us audio.
+      return webviewName() || 'this browser';
+    }
+  }
+
+  function showOpenInBrowserNotice(appName) {
+    injectMicStyles();
+    openWindow();
+    const msgs = $('aiw-messages');
+    if (!msgs || document.getElementById('aiw-browser-warn')) return;
+
+    const isIOS = /iPad|iPhone|iPod/i.test(navigator.userAgent || '');
+    const steps = isIOS
+      ? 'Tap the <strong>•••</strong> (or share) button at the corner of this screen, then choose <strong>Open in Safari</strong>.'
+      : 'Tap the <strong>⋮</strong> menu at the corner of this screen, then choose <strong>Open in browser</strong> (Chrome).';
+
+    const div = document.createElement('div');
+    div.id = 'aiw-browser-warn';
+    div.className = 'aiw-browser-warn';
+    div.innerHTML =
+      '⚠️ <strong>' + escapeHTML(appName) + '’s built-in browser blocks the microphone</strong>, ' +
+      'so I can’t hear you in here. Open this page in your real browser and I’ll talk you through everything.' +
+      '<span class="aiw-warn-steps">' + steps + '</span>' +
+      '<span class="aiw-copy-link" id="aiw-copy-link" role="button" tabindex="0">📋 Copy the link instead</span>';
+    msgs.appendChild(div);
+
+    const copy = $('aiw-copy-link');
+    if (copy) {
+      copy.addEventListener('click', () => {
+        const url = window.location.href;
+        const done = () => { copy.textContent = '✅ Link copied — paste it in Safari or Chrome'; };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(url).then(done).catch(() => { copy.textContent = url; });
+        } else {
+          copy.textContent = url;
+        }
+      });
+    }
+    scrollMessages();
+  }
+
   // ── VAPI VOICE (preferred engine) ────────────────────────────
   let vapi = null;
   let vapiActive = false;
@@ -266,8 +368,19 @@ Your replies are spoken aloud through the phone speaker. Therefore:
 
   async function startVapiCall() {
     if (vapiActive || vapiLoading) return;
+
     vapiLoading = true;
     setVoiceUI(true, 'Connecting to Max…');
+
+    // Only bail if the mic genuinely can't be opened here (see micCheck).
+    const blocker = await micCheck();
+    if (blocker) {
+      vapiLoading = false;
+      setVoiceUI(false);
+      showOpenInBrowserNotice(blocker);
+      return;
+    }
+
     showMicBanner();
 
     try {
@@ -290,7 +403,14 @@ Your replies are spoken aloud through the phone speaker. Therefore:
           vapiActive = false;
           vapiLoading = false;
           setVoiceUI(false);
-          addBotMessage('Call ended. Tap the mic to talk to me again — or use the buttons below.', true);
+          // Last thing the prospect sees — carry the live offer straight
+          // into the close instead of dropping them on a generic message.
+          addBotMessage(
+            dealOffered
+              ? 'That\'s the case-study rate — $625 setup, today only. Tap the gold button to lock it in, or tap the mic if you have one more question.'
+              : 'Call ended. Tap the gold button to start your setup at $1,250, or tap the mic to talk to me again.',
+            true
+          );
         });
 
         vapi.on('message', (m) => {
@@ -326,18 +446,33 @@ Your replies are spoken aloud through the phone speaker. Therefore:
 
   let dealOffered = false;
 
+  // ── PRICE / CLOSE DETECTION ──────────────────────────────────
+  // Only treat a number as a price when it carries a $ sign, an explicit
+  // "dollars", or nearby pricing language. Max reads real lookup_business
+  // data aloud — phone numbers like "(803) 625-1400" and addresses like
+  // "625 E Liberty St" both contain 625. A bare /625/ match fired the
+  // discount button, latched dealOffered on permanently, and buried the
+  // $1,250 offer for the rest of the call.
+  const PRICE_625 = /\$\s?625\b|\b625\s*(?:dollars|bucks)\b|(?:setup|fee|price|cost|instead of|down to|reduce[sd]?(?: it)? to|only)\D{0,24}\b625\b|six\s*(?:hundred\s*)?(?:and\s*)?twenty[\s-]*five\s*(?:dollars|bucks)/i;
+  // The word-based alternatives are phrases Max only uses when he's actually
+  // presenting payment (the prompt scripts them), and none of them can appear
+  // in lookup_business data. "get started" / "sign up" are deliberately absent:
+  // Max says those during qualification, which fired the button on turn one.
+  const PRICE_1250 = /\$\s?1,?250\b|\b1,?250\s*(?:dollars|bucks)\b|(?:setup|fee|price|cost|promotion|today)\D{0,24}\b1,?250\b|payment link|gold button|secure link|checkout/i;
+
+  // The button that matches whatever offer is actually on the table.
+  function ctaHTML() {
+    return dealOffered
+      ? `<div class="aiw-cta-group"><a href="${CONFIG.setupDealUrl}" class="aiw-cta-btn aiw-cta-btn--amber" target="_blank" rel="noopener">🔒 Claim It — $625 Setup (today only)</a></div>`
+      : `<div class="aiw-cta-group"><a href="${CONFIG.setupPromoUrl}" class="aiw-cta-btn aiw-cta-btn--amber" target="_blank" rel="noopener">🤖 Start Setup — $1,250 (reg. $2,500)</a></div>`;
+  }
+
   // Render Max's spoken words in the chat, and surface the right
   // payment button when he quotes a price.
   function maxSaid(text) {
-    let cta = '';
-    const is625 = /625|6\s+25|six\s*(?:hundred\s*(?:and\s*)?)?twenty[\s-]*five/i.test(text);
-    if (is625) dealOffered = true;
-    if (dealOffered) {
-      cta = `<div class="aiw-cta-group"><a href="${CONFIG.setupDealUrl}" class="aiw-cta-btn aiw-cta-btn--amber" target="_blank" rel="noopener">🔒 Claim It — $625 Setup (today only)</a></div>`;
-    } else if (/1,?250|payment link|sign up|get started/i.test(text)) {
-      cta = `<div class="aiw-cta-group"><a href="${CONFIG.setupPromoUrl}" class="aiw-cta-btn aiw-cta-btn--amber" target="_blank" rel="noopener">🤖 Start Setup — $1,250 (reg. $2,500)</a></div>`;
-    }
-    addBotMessageHTML(formatText(text) + cta);
+    if (PRICE_625.test(text)) dealOffered = true;
+    const showCTA = dealOffered || PRICE_1250.test(text);
+    addBotMessageHTML(formatText(text) + (showCTA ? ctaHTML() : ''));
   }
 
   function setVoiceUI(live, label) {
@@ -531,17 +666,13 @@ Your replies are spoken aloud through the phone speaker. Therefore:
 
     const formatted = formatText(text);
 
-    let ctaHTML = '';
-    if (withCTA) {
-      ctaHTML = `
-        <div class="aiw-cta-group">
-          <a href="${CONFIG.setupPromoUrl}" class="aiw-cta-btn aiw-cta-btn--amber" target="_blank" rel="noopener">🤖 Start Setup — $1,250 (reg. $2,500)</a>
-        </div>`;
-    }
+    // Follow the live offer state — a prospect Max just closed at $625 must
+    // not be handed a $1,250 button on the way out.
+    const cta = withCTA ? ctaHTML() : '';
 
     div.innerHTML = `
       <div class="aiw-mini-avatar">⚙</div>
-      <div class="aiw-bubble">${formatted}${ctaHTML}</div>`;
+      <div class="aiw-bubble">${formatted}${cta}</div>`;
 
     msgs.appendChild(div);
     scrollMessages();
