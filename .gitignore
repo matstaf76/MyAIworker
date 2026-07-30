@@ -4,3 +4,14 @@ backend/.env
 
 # Node
 node_modules/
+
+# Internal notes - keep OFF the public web (GitHub Pages serves every file)
+vapi-max-system-prompt*.txt
+vapi-max-assistant.md
+tools/max-eval.mjs
+Marketing-Monetization-Plan*.md
+Max_Outbound_Campaign*.md
+Roundup-Outreach-Pack*.md
+outreach-*.md
+weekend-blitz.md
+*-leads.csv
