@@ -134,6 +134,18 @@
   line-height: 1.5;
 }
 
+.included-callout {
+  margin: -0.5rem 0 0;
+  padding: 0.65rem 0.85rem;
+  border-left: 3px solid var(--clr-amber);
+  background: var(--clr-amber-glow);
+  color: var(--clr-amber);
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
 /* ── CARD PRICE ───────────────────────────────────────────── */
 .card-price {
   display: flex;
@@ -273,7 +285,7 @@
   .pricing-grid {
     grid-template-columns: repeat(2, 1fr);
     align-items: start;
-    max-width: 880px;
+    max-width: 1100px;
     margin-inline: auto;
   }
 
@@ -283,5 +295,15 @@
 
   .pricing-card--featured:hover {
     transform: scale(1.03) translateY(-5px);
+  }
+}
+
+@media (min-width: 1100px) {
+  .pricing-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .pricing-card {
+    padding: 1.5rem;
   }
 }
