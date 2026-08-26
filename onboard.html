@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
-  <meta name="description" content="MyAIworker — Complete your onboarding so we can prepare your AI Business Operating System.">
-  <title>Complete Your MyAIworker Onboarding</title>
+  <meta name="description" content="Schedule a 30-minute MyAIworker onboarding call.">
+  <title>Schedule Your MyAIworker Onboarding Call</title>
   <link rel="icon" href="favicon.ico" sizes="48x48">
   <link rel="icon" type="image/png" sizes="192x192" href="images/icon-192.png">
   <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
@@ -13,377 +13,147 @@
   <link rel="stylesheet" href="css/onboard.css">
 </head>
 <body>
-
-  <!-- ── NAV ───────────────────────────────────────────────── -->
   <nav class="site-nav" role="navigation" aria-label="Main navigation">
     <div class="container nav-inner">
       <a href="/" class="nav-logo"><img src="images/logo-512.png" alt="MyAIworker mascot" class="nav-logo-img">My<span>AI</span>Worker</a>
     </div>
   </nav>
 
-  <!-- ── ONBOARDING PAGE ───────────────────────────────────── -->
   <main class="onboard-page" id="main-content">
     <div class="container">
-
       <div class="onboard-header fade-up">
-        <span class="section-label">Step One: Tell Us About Your Business</span>
-        <h1 class="section-title">Complete Your Onboarding</h1>
-        <p>
-          Give us the details needed to build your MyAIworker system. The more complete your answers,
-          the better your phone agent, talking website, calendars, CRM, and follow-up will fit your business.
-        </p>
+        <span class="section-label">One Quick Step</span>
+        <h1 class="section-title">Schedule Your Onboarding Call</h1>
+        <p>Give us your contact information and the best time to reach you. We’ll spend about 30 minutes learning your business and gathering everything needed for your MyAIworker build.</p>
       </div>
 
-      <!-- Progress -->
-      <div class="onboard-progress fade-up" aria-label="Form progress">
-        <div class="progress-step active">
-          <span class="step-dot" aria-hidden="true"></span>Onboarding
-        </div>
+      <div class="onboard-progress fade-up" aria-label="Getting-started progress">
+        <div class="progress-step active"><span class="step-dot" aria-hidden="true"></span>Contact</div>
         <div class="progress-line" aria-hidden="true"></div>
-        <div class="progress-step">
-          <span class="step-dot" aria-hidden="true"></span>Payment
-        </div>
+        <div class="progress-step"><span class="step-dot" aria-hidden="true"></span>30-Minute Call</div>
         <div class="progress-line" aria-hidden="true"></div>
-        <div class="progress-step">
-          <span class="step-dot" aria-hidden="true"></span>We Build
-        </div>
+        <div class="progress-step"><span class="step-dot" aria-hidden="true"></span>Payment</div>
         <div class="progress-line" aria-hidden="true"></div>
-        <div class="progress-step">
-          <span class="step-dot" aria-hidden="true"></span>Go Live
-        </div>
+        <div class="progress-step"><span class="step-dot" aria-hidden="true"></span>We Build</div>
       </div>
 
-      <!-- ── SUCCESS STATE (shown after submit) ──────────────── -->
       <div id="onboard-success" class="onboard-card" role="alert" aria-live="polite">
-        <div class="success-icon" aria-hidden="true">✉️</div>
-        <div class="success-title">Onboarding Received</div>
+        <div class="success-icon" aria-hidden="true">✓</div>
+        <div class="success-title">Call Request Received</div>
         <p class="success-desc">
-          Your onboarding information has been sent to our team for review. We’ll email your private implementation offer and secure payment link to the address you provided.
+          We have your contact information and preferred call time. We’ll plan to call you then, or contact you if we need to adjust the time.
           <br><br>
-          Payment reserves your work and begins your three-business-day build window. If you need us, email <a href="mailto:SupremeDude@sometechdude.com">SupremeDude@sometechdude.com</a>.
+          Please set aside about 30 minutes so we can learn your business and complete your onboarding together. If you need us, email <a href="mailto:SupremeDude@sometechdude.com">SupremeDude@sometechdude.com</a>.
         </p>
       </div>
 
-      <!-- ── FORM ─────────────────────────────────────────────── -->
-      <form
-        id="onboard-form"
-        action="https://formspree.io/f/xwvgpnlo"
-        method="POST"
-        class="fade-up"
-        aria-label="Onboarding form"
-      >
-
-        <!-- Auto-detect plan from URL parameter -->
-        <script>
-          (function() {
-            var params = new URLSearchParams(window.location.search);
-            var planParam = params.get('plan');
-            var planMap = {
-              'small-business':       'Small Business — $300/month',
-              'business':             'Business — $500/month',
-              'busy-business':        'Busy Business — $1,000/month',
-              'high-volume-business': 'High-Volume Business — $1,500/month'
-            };
-            if (planParam && planMap[planParam]) {
-              document.addEventListener('DOMContentLoaded', function() {
-                var sel = document.getElementById('plan');
-                var source = document.getElementById('submission-source');
-                if (sel) {
-                  for (var i = 0; i < sel.options.length; i++) {
-                    if (sel.options[i].value === planMap[planParam]) {
-                      sel.selectedIndex = i;
-                      sel.dispatchEvent(new Event('change'));
-                      break;
-                    }
-                  }
-                }
-                if (source) source.value = 'Website plan selection: ' + planMap[planParam];
-              });
-            }
-          })();
-        </script>
-
-        <!-- Hidden fields used by the Formspree notification email -->
-        <input type="hidden" name="subject" value="New MyAIworker Onboarding — Payment Pending">
-        <input type="hidden" name="payment_status" value="Payment pending — onboarding completed">
-        <input type="hidden" name="submission_source" id="submission-source" value="Direct onboarding">
+      <form id="onboard-form" action="https://formspree.io/f/xwvgpnlo" method="POST" class="fade-up" aria-label="Schedule an onboarding call">
+        <input type="hidden" name="subject" value="New MyAIworker 30-Minute Onboarding Call Request">
+        <input type="hidden" name="submission_source" id="submission-source" value="Direct onboarding call request">
         <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off">
 
         <div class="onboard-card">
-
-          <!-- ── SECTION 1: Plan + Contact ───────────────────── -->
           <fieldset class="form-section">
-            <legend class="form-section-title">
-              <span aria-hidden="true">01 ·</span> Plan &amp; Contact Info
-            </legend>
+            <legend class="form-section-title"><span aria-hidden="true">01 ·</span> Contact Information</legend>
             <div class="form-grid form-grid--2">
               <div class="form-group">
-                <label for="plan">Plan Selected <span class="required" aria-label="required">*</span></label>
-                <select id="plan" name="plan" class="form-control" required>
-                  <option value="" disabled selected>Select your plan…</option>
-                  <option value="Small Business — $300/month">Small Business — $300/month</option>
-                  <option value="Business — $500/month">Business — $500/month</option>
-                  <option value="Busy Business — $1,000/month">Busy Business — $1,000/month</option>
-                  <option value="High-Volume Business — $1,500/month">High-Volume Business — $1,500/month</option>
-                </select>
+                <label for="full-name">Your Name <span class="required" aria-label="required">*</span></label>
+                <input type="text" id="full-name" name="full_name" class="form-control" placeholder="Jane Smith" required autocomplete="name">
               </div>
               <div class="form-group">
-                <label for="full-name">Your Full Name <span class="required" aria-label="required">*</span></label>
-                <input type="text" id="full-name" name="full_name" class="form-control" placeholder="Jane Smith" required autocomplete="name">
+                <label for="business-name">Business Name <span class="required" aria-label="required">*</span></label>
+                <input type="text" id="business-name" name="business_name" class="form-control" placeholder="Smith Plumbing" required autocomplete="organization">
+              </div>
+              <div class="form-group">
+                <label for="phone">Best Phone Number <span class="required" aria-label="required">*</span></label>
+                <input type="tel" id="phone" name="phone" class="form-control" placeholder="(555) 123-4567" required autocomplete="tel">
               </div>
               <div class="form-group">
                 <label for="email">Email Address <span class="required" aria-label="required">*</span></label>
                 <input type="email" id="email" name="email" class="form-control" placeholder="you@yourbusiness.com" required autocomplete="email">
               </div>
               <div class="form-group">
-                <label for="phone">Phone Number <span class="required" aria-label="required">*</span></label>
-                <input type="tel" id="phone" name="phone" class="form-control" placeholder="(555) 123-4567" required autocomplete="tel">
+                <label for="business-type">Type of Business</label>
+                <input type="text" id="business-type" name="business_type" class="form-control" placeholder="Plumbing, roofing, restaurant…">
+              </div>
+              <div class="form-group">
+                <label for="plan">Plan You’re Considering</label>
+                <select id="plan" name="plan" class="form-control">
+                  <option value="">Not sure yet</option>
+                  <option value="Small Business — $300/month">Small Business — $300/month</option>
+                  <option value="Business — $500/month">Business — $500/month</option>
+                  <option value="Busy Business — $1,000/month">Busy Business — $1,000/month</option>
+                  <option value="High-Volume Business — $1,500/month">High-Volume Business — $1,500/month</option>
+                </select>
               </div>
             </div>
           </fieldset>
 
-          <!-- ── SECTION 2: Business Info ────────────────────── -->
           <fieldset class="form-section">
-            <legend class="form-section-title">
-              <span aria-hidden="true">02 ·</span> Your Business
-            </legend>
+            <legend class="form-section-title"><span aria-hidden="true">02 ·</span> Best Time to Call</legend>
+            <p class="form-hint">Choose a time when you can talk for about 30 minutes.</p>
             <div class="form-grid form-grid--2">
               <div class="form-group">
-                <label for="biz-name">Business Name <span class="required" aria-label="required">*</span></label>
-                <input type="text" id="biz-name" name="business_name" class="form-control" placeholder="Acme Plumbing Co." required>
+                <label for="call-date">Preferred Date <span class="required" aria-label="required">*</span></label>
+                <input type="date" id="call-date" name="preferred_call_date" class="form-control" required>
               </div>
               <div class="form-group">
-                <label for="biz-type">Type of Business <span class="required" aria-label="required">*</span></label>
-                <select id="biz-type" name="business_type" class="form-control" required>
-                  <option value="" disabled selected>Select type…</option>
-                  <option>Restaurant / Food Service</option>
-                  <option>Medical / Dental / Chiropractic</option>
-                  <option>Law Firm / Legal Services</option>
-                  <option>Salon / Spa / Beauty</option>
-                  <option>Home Services (plumbing, HVAC, etc.)</option>
-                  <option>Real Estate</option>
-                  <option>Retail / eCommerce</option>
-                  <option>Fitness / Gym / Studio</option>
-                  <option>Automotive</option>
-                  <option>Financial / Insurance</option>
-                  <option>Other</option>
+                <label for="call-time">Preferred Start Time <span class="required" aria-label="required">*</span></label>
+                <input type="time" id="call-time" name="preferred_call_time" class="form-control" step="1800" required>
+              </div>
+              <div class="form-group">
+                <label for="timezone">Your Time Zone <span class="required" aria-label="required">*</span></label>
+                <select id="timezone" name="time_zone" class="form-control" required>
+                  <option value="" disabled selected>Select your time zone…</option>
+                  <option>Eastern Time</option><option>Central Time</option><option>Mountain Time</option>
+                  <option>Pacific Time</option><option>Alaska Time</option><option>Hawaii Time</option>
                 </select>
               </div>
               <div class="form-group">
-                <label for="biz-website">Current Website URL</label>
-                <input type="url" id="biz-website" name="website_url" class="form-control" placeholder="https://yourbusiness.com" autocomplete="url">
-                <p class="form-hint">Leave blank if you don't have one yet.</p>
-              </div>
-              <div class="form-group">
-                <label for="biz-phone">Business Phone Number</label>
-                <input type="tel" id="biz-phone" name="business_phone" class="form-control" placeholder="(555) 987-6543">
-              </div>
-              <div class="form-group" style="grid-column:1/-1">
-                <label for="biz-address">Business Address</label>
-                <input type="text" id="biz-address" name="business_address" class="form-control" placeholder="123 Main St, Charlotte, NC 28202" autocomplete="street-address">
-              </div>
-              <div class="form-group" style="grid-column:1/-1">
-                <label for="biz-hours">Business Hours <span class="required" aria-label="required">*</span></label>
-                <textarea id="biz-hours" name="business_hours" class="form-control" rows="3" placeholder="Mon–Fri: 9am–6pm&#10;Sat: 10am–4pm&#10;Sun: Closed" required></textarea>
-                <p class="form-hint">Your AI will tell callers these hours and handle after-hours inquiries.</p>
-              </div>
-              <div class="form-group" style="grid-column:1/-1">
-                <label for="biz-desc">Describe Your Business <span class="required" aria-label="required">*</span></label>
-                <textarea id="biz-desc" name="business_description" class="form-control" rows="4" placeholder="Tell us what you do, who your customers are, and what makes you different. The more detail, the better your AI will represent you." required></textarea>
+                <label for="alternate-time">Alternate Time or Scheduling Note</label>
+                <input type="text" id="alternate-time" name="alternate_call_time" class="form-control" placeholder="Any weekday after 3 PM also works">
               </div>
             </div>
           </fieldset>
 
-          <!-- ── SECTION 3: Services & FAQs ─────────────────── -->
-          <fieldset class="form-section">
-            <legend class="form-section-title">
-              <span aria-hidden="true">03 ·</span> Services &amp; Common Questions
-            </legend>
-            <div class="form-grid">
-              <div class="form-group">
-                <label for="services">Your Services / Menu Items <span class="required" aria-label="required">*</span></label>
-                <textarea id="services" name="services" class="form-control" rows="5" placeholder="List your main services or products with brief descriptions and prices if applicable. Example:&#10;- Oil Change: $49.99&#10;- Tire Rotation: $24.99&#10;- Brake Inspection: Free" required></textarea>
-              </div>
-              <div class="form-group">
-                <label for="faqs">Top 5–10 Questions Your Customers Ask</label>
-                <textarea id="faqs" name="faqs" class="form-control" rows="5" placeholder="Example:&#10;- Do you take walk-ins?&#10;- What's your cancellation policy?&#10;- Do you offer delivery?&#10;- What payment methods do you accept?"></textarea>
-                <p class="form-hint">Your AI will answer these instantly, 24/7.</p>
-              </div>
-              <div class="form-group">
-                <label for="booking-info">Booking / Appointment Info</label>
-                <textarea id="booking-info" name="booking_info" class="form-control" rows="3" placeholder="How do you book appointments? Do you use a specific system (Calendly, Acuity, etc.)? What info do you need from customers to book?"></textarea>
-              </div>
-            </div>
-          </fieldset>
-
-          <!-- ── SECTION 4: AI Behavior ──────────────────────── -->
-          <fieldset class="form-section">
-            <legend class="form-section-title">
-              <span aria-hidden="true">04 ·</span> AI Personality &amp; Behavior
-            </legend>
-            <div class="form-grid form-grid--2">
-              <div class="form-group">
-                <label for="ai-name">What Should Your AI Be Named?</label>
-                <input type="text" id="ai-name" name="ai_name" class="form-control" placeholder="e.g. Alex, Sam, Sarah, or just 'Assistant'">
-              </div>
-              <div class="form-group">
-                <label for="ai-tone">Preferred Tone / Personality</label>
-                <select id="ai-tone" name="ai_tone" class="form-control">
-                  <option value="" disabled selected>Select a tone…</option>
-                  <option>Friendly and warm</option>
-                  <option>Professional and formal</option>
-                  <option>Casual and conversational</option>
-                  <option>Energetic and enthusiastic</option>
-                  <option>Calm and reassuring (great for medical)</option>
-                </select>
-              </div>
-              <div class="form-group" style="grid-column:1/-1">
-                <label for="escalation">How Should the AI Handle Complaints or Complex Issues?</label>
-                <textarea id="escalation" name="escalation_instructions" class="form-control" rows="3" placeholder="e.g. 'Apologize, take down their info, and tell them someone will call back within 2 hours.' or 'Transfer to voicemail and send an alert email.'"></textarea>
-              </div>
-              <div class="form-group" style="grid-column:1/-1">
-                <label>What Should the AI Actively Promote or Upsell?</label>
-                <div class="form-grid">
-                  <div class="form-group">
-                    <input type="text" name="upsell_1" class="form-control" placeholder="e.g. Monthly membership plan">
-                  </div>
-                  <div class="form-group">
-                    <input type="text" name="upsell_2" class="form-control" placeholder="e.g. Weekend special — 20% off">
-                  </div>
-                </div>
-              </div>
-              <div class="form-group" style="grid-column:1/-1">
-                <label for="anything-else">Anything Else the AI Should Know?</label>
-                <textarea id="anything-else" name="additional_info" class="form-control" rows="4" placeholder="Parking info, accessibility, special instructions, things you definitely don't want the AI to say, upcoming events, promotions — anything at all."></textarea>
-              </div>
-            </div>
-          </fieldset>
-
-          <!-- ── SECTION 5: Calendars (Busy Biz only) ────────── -->
-          <fieldset class="form-section" id="busy-biz-section" style="display:none">
-            <legend class="form-section-title">
-              <span aria-hidden="true">05 ·</span> Multi-Calendar Setup <span style="font-size:0.75rem;color:var(--clr-text-muted);text-transform:none;font-weight:400;">(Busy Business plan)</span>
-            </legend>
-            <div class="form-grid">
-              <div class="form-group">
-                <label for="calendar-system">What Calendar System Do You Use?</label>
-                <select id="calendar-system" name="calendar_system" class="form-control">
-                  <option value="" disabled selected>Select…</option>
-                  <option>Google Calendar</option>
-                  <option>Outlook / Microsoft 365</option>
-                  <option>Calendly</option>
-                  <option>Acuity Scheduling</option>
-                  <option>Square Appointments</option>
-                  <option>Other / None yet</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="num-calendars">How Many Staff Calendars?</label>
-                <input type="number" id="num-calendars" name="num_calendars" class="form-control" min="1" max="20" placeholder="e.g. 3">
-              </div>
-              <div class="form-group" style="grid-column:1/-1">
-                <label for="staff-names">Staff Names &amp; Roles</label>
-                <textarea id="staff-names" name="staff_names" class="form-control" rows="3" placeholder="e.g.&#10;- Marco (head chef, available Mon–Fri)&#10;- Lisa (stylist, Tue–Sat)&#10;- Front desk (all hours)"></textarea>
-              </div>
-              <div class="form-group" style="grid-column:1/-1">
-                <label for="order-flow">Describe Your Order / Reservation Flow</label>
-                <textarea id="order-flow" name="order_flow" class="form-control" rows="4" placeholder="Walk us through how a customer currently places a to-go order or makes a reservation. What info do you collect? What confirmation do you give them?"></textarea>
-              </div>
-            </div>
-          </fieldset>
-
-          <!-- ── SECTION 6: Branding ────────────────────────── -->
-          <fieldset class="form-section">
-            <legend class="form-section-title">
-              <span aria-hidden="true">06 ·</span> Branding
-            </legend>
-            <div class="form-grid">
-              <div class="form-group" style="grid-column:1/-1">
-                <label for="brand-colors">Brand Colors (hex codes if you know them)</label>
-                <input type="text" id="brand-colors" name="brand_colors" class="form-control" placeholder="e.g. Primary: #FF6B35, Secondary: #2C3E50 — or just describe: 'navy blue and gold'">
-                <p class="form-hint">We’ll collect your logo and photos directly after payment.</p>
-              </div>
-            </div>
-          </fieldset>
-
-          <!-- ── SECTION 7: Technical (Voice Chat Setup only) ── -->
-          <fieldset class="form-section" id="setup-section">
-            <legend class="form-section-title">
-              <span aria-hidden="true">07 ·</span> Technical Details
-            </legend>
-            <div class="form-grid form-grid--2">
-              <div class="form-group">
-                <label for="website-platform">Website Platform</label>
-                <select id="website-platform" name="website_platform" class="form-control">
-                  <option value="" disabled selected>Select…</option>
-                  <option>WordPress</option>
-                  <option>Squarespace</option>
-                  <option>Wix</option>
-                  <option>Shopify</option>
-                  <option>Webflow</option>
-                  <option>GitHub Pages / Static HTML</option>
-                  <option>GoDaddy Website Builder</option>
-                  <option>Other</option>
-                  <option>I don't have a website yet</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="access-level">Can You Give Us Site Access?</label>
-                <select id="access-level" name="access_level" class="form-control">
-                  <option value="" disabled selected>Select…</option>
-                  <option>Yes — I can add an admin user</option>
-                  <option>Yes — I can add a script tag myself with guidance</option>
-                  <option>No — I'll need full guidance</option>
-                </select>
-              </div>
-            </div>
-          </fieldset>
-
-          <!-- ── SUBMIT ───────────────────────────────────────── -->
           <div class="form-submit">
-            <button type="submit" class="btn btn--primary btn--lg btn--full" id="submit-btn">
-              Complete Onboarding →
-            </button>
-            <p class="submit-note">
-              Your information goes directly to our team. We’ll review it and email your private implementation offer and secure payment link. Payment reserves your work and starts the three-business-day build window.
-            </p>
+            <button type="submit" class="btn btn--primary btn--lg btn--full" id="submit-btn">Request My Onboarding Call →</button>
+            <p class="submit-note">This takes about one minute. Your information goes directly to our team, and we’ll handle the detailed onboarding with you on the call.</p>
             <p class="form-error" id="form-error" role="alert" aria-live="assertive"></p>
           </div>
-
-        </div><!-- /onboard-card -->
+        </div>
       </form>
-
-    </div><!-- /container -->
+    </div>
   </main>
 
-  <!-- ── FOOTER ─────────────────────────────────────────────── -->
   <footer class="site-footer" role="contentinfo">
     <div class="container footer-inner">
       <div class="footer-logo">My<span>AI</span>Worker</div>
-      <p class="footer-copy">
-        &copy; <span id="year"></span> MyAIworker.online ·
-        Powered by <a href="https://sometechdude.com" target="_blank" rel="noopener">SomeTechDude.com</a>
-      </p>
+      <p class="footer-copy">&copy; <span id="year"></span> MyAIworker.online · Powered by <a href="https://sometechdude.com" target="_blank" rel="noopener">SomeTechDude.com</a></p>
     </div>
   </footer>
 
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
 
-    // Show multi-calendar questions for the two higher-workload plans.
-    const planSelect = document.getElementById('plan');
-    const busySection = document.getElementById('busy-biz-section');
-
-    function updatePlanFields() {
-      busySection.style.display =
-        planSelect.value.includes('Busy Business') || planSelect.value.includes('High-Volume') ? 'block' : 'none';
+    const params = new URLSearchParams(window.location.search);
+    const planParam = params.get('plan');
+    const planMap = {
+      'small-business': 'Small Business — $300/month',
+      'business': 'Business — $500/month',
+      'busy-business': 'Busy Business — $1,000/month',
+      'high-volume-business': 'High-Volume Business — $1,500/month'
+    };
+    if (planParam && planMap[planParam]) {
+      document.getElementById('plan').value = planMap[planParam];
+      document.getElementById('submission-source').value = 'Website plan selection: ' + planMap[planParam];
     }
 
-    planSelect.addEventListener('change', updatePlanFields);
-    updatePlanFields();
+    const callDate = document.getElementById('call-date');
+    const today = new Date();
+    callDate.min = new Date(today.getTime() - today.getTimezoneOffset() * 60000).toISOString().split('T')[0];
 
-    // Form submission + success state
-    const form    = document.getElementById('onboard-form');
+    const form = document.getElementById('onboard-form');
     const success = document.getElementById('onboard-success');
     const submitBtn = document.getElementById('submit-btn');
     const formError = document.getElementById('form-error');
@@ -396,14 +166,9 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // Submit over HTTPS to Formspree and keep the visitor on our confirmation screen.
-    form.addEventListener('submit', async function (e) {
-      e.preventDefault();
-
-      if (!form.checkValidity()) {
-        form.reportValidity();
-        return;
-      }
+    form.addEventListener('submit', async function (event) {
+      event.preventDefault();
+      if (!form.checkValidity()) { form.reportValidity(); return; }
 
       formError.textContent = '';
       submitBtn.disabled = true;
@@ -415,18 +180,15 @@
           body: new FormData(form),
           headers: { Accept: 'application/json' }
         });
-
         if (!response.ok) throw new Error('Formspree rejected the submission');
-
         form.reset();
         showSuccess();
       } catch (error) {
-        formError.textContent = 'We couldn’t send your onboarding form. Please wait a moment and try again, or email SupremeDude@sometechdude.com.';
+        formError.textContent = 'We couldn’t send your request. Please wait a moment and try again, or email SupremeDude@sometechdude.com.';
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Complete Onboarding →';
+        submitBtn.textContent = 'Request My Onboarding Call →';
       }
     });
   </script>
-
 </body>
 </html>
