@@ -32,9 +32,9 @@
         <div class="progress-line" aria-hidden="true"></div>
         <div class="progress-step"><span class="step-dot" aria-hidden="true"></span>30-Minute Call</div>
         <div class="progress-line" aria-hidden="true"></div>
-        <div class="progress-step"><span class="step-dot" aria-hidden="true"></span>Payment</div>
-        <div class="progress-line" aria-hidden="true"></div>
         <div class="progress-step"><span class="step-dot" aria-hidden="true"></span>We Build</div>
+        <div class="progress-line" aria-hidden="true"></div>
+        <div class="progress-step"><span class="step-dot" aria-hidden="true"></span>Go Live</div>
       </div>
 
       <div id="onboard-success" class="onboard-card" role="alert" aria-live="polite">
@@ -50,6 +50,7 @@
       <form id="onboard-form" action="https://formspree.io/f/xwvgpnlo" method="POST" class="fade-up" aria-label="Schedule an onboarding call">
         <input type="hidden" name="subject" value="New MyAIworker 30-Minute Onboarding Call Request">
         <input type="hidden" name="submission_source" id="submission-source" value="Direct onboarding call request">
+        <input type="hidden" name="website_plan_interest" id="website-plan-interest" value="Not specified">
         <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off">
 
         <div class="onboard-card">
@@ -72,19 +73,9 @@
                 <label for="email">Email Address <span class="required" aria-label="required">*</span></label>
                 <input type="email" id="email" name="email" class="form-control" placeholder="you@yourbusiness.com" required autocomplete="email">
               </div>
-              <div class="form-group">
+              <div class="form-group" style="grid-column:1/-1">
                 <label for="business-type">Type of Business</label>
                 <input type="text" id="business-type" name="business_type" class="form-control" placeholder="Plumbing, roofing, restaurant…">
-              </div>
-              <div class="form-group">
-                <label for="plan">Plan You’re Considering</label>
-                <select id="plan" name="plan" class="form-control">
-                  <option value="">Not sure yet</option>
-                  <option value="Small Business — $300/month">Small Business — $300/month</option>
-                  <option value="Business — $500/month">Business — $500/month</option>
-                  <option value="Busy Business — $1,000/month">Busy Business — $1,000/month</option>
-                  <option value="High-Volume Business — $1,500/month">High-Volume Business — $1,500/month</option>
-                </select>
               </div>
             </div>
           </fieldset>
@@ -145,7 +136,7 @@
       'high-volume-business': 'High-Volume Business — $1,500/month'
     };
     if (planParam && planMap[planParam]) {
-      document.getElementById('plan').value = planMap[planParam];
+      document.getElementById('website-plan-interest').value = planMap[planParam];
       document.getElementById('submission-source').value = 'Website plan selection: ' + planMap[planParam];
     }
 
