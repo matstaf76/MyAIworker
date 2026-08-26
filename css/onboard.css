@@ -1,6 +1,6 @@
 /* ============================================================
    MyAIworker.online — onboard.css
-   Post-payment onboarding form
+   Onboarding-first lead and build-intake form
    ============================================================ */
 
 /* ── PAGE LAYOUT ──────────────────────────────────────────── */
@@ -333,6 +333,11 @@ select.form-control option {
   line-height: 1.7;
   max-width: 420px;
   margin-inline: auto;
+}
+
+.success-desc a {
+  color: var(--clr-amber);
+  overflow-wrap: anywhere;
 }
 
 /* ── RESPONSIVE: TABLET 640px+ ────────────────────────────── */
