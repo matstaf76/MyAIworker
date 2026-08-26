@@ -537,6 +537,12 @@ body::before {
   margin-bottom: 2.5rem;
 }
 
+.hero-talk-btn {
+  min-width: min(100%, 320px);
+  padding: 1.15rem 2rem;
+  font-size: 1.2rem;
+}
+
 .hero-voice-prompt {
   display: flex;
   align-items: center;
