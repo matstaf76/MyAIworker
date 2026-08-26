@@ -56,28 +56,19 @@
       <!-- ── SUCCESS STATE (shown after submit) ──────────────── -->
       <div id="onboard-success" class="onboard-card" role="alert" aria-live="polite">
         <div class="success-icon" aria-hidden="true">✉️</div>
-        <div class="success-title">Check Your Email Now</div>
+        <div class="success-title">Onboarding Received</div>
         <p class="success-desc">
-          Your onboarding information is saved. We have sent your private implementation offer and secure payment link to the email address you provided.
+          Your onboarding information has been sent to our team for review. We’ll email your private implementation offer and secure payment link to the address you provided.
           <br><br>
-          Payment reserves your work and begins your three-business-day build window. If you do not see the message, check your spam folder or email <a href="mailto:SupremeDude@sometechdude.com">SupremeDude@sometechdude.com</a>.
+          Payment reserves your work and begins your three-business-day build window. If you need us, email <a href="mailto:SupremeDude@sometechdude.com">SupremeDude@sometechdude.com</a>.
         </p>
       </div>
 
       <!-- ── FORM ─────────────────────────────────────────────── -->
-      <!--
-        SETUP INSTRUCTIONS:
-        1. Go to formspree.io and create a free account
-        2. Create a new form and set the email to sometechdude76@gmail.com
-        3. Replace "YOUR_FORMSPREE_ID" below with your form ID (e.g. xpzvqkla)
-        4. Enable file uploads in your Formspree form settings
-      -->
       <form
         id="onboard-form"
         action="https://formspree.io/f/xwvgpnlo"
         method="POST"
-        enctype="multipart/form-data"
-        novalidate
         class="fade-up"
         aria-label="Onboarding form"
       >
@@ -112,11 +103,10 @@
           })();
         </script>
 
-        <!-- Hidden fields used by Formspree notification and redirect -->
+        <!-- Hidden fields used by the Formspree notification email -->
         <input type="hidden" name="subject" value="New MyAIworker Onboarding — Payment Pending">
         <input type="hidden" name="payment_status" value="Payment pending — onboarding completed">
         <input type="hidden" name="submission_source" id="submission-source" value="Direct onboarding">
-        <input type="hidden" name="_next" id="formspree-next" value="https://myaiworker.online/onboard.html?success=true">
         <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off">
 
         <div class="onboard-card">
@@ -302,48 +292,16 @@
             </div>
           </fieldset>
 
-          <!-- ── SECTION 6: File Uploads ─────────────────────── -->
+          <!-- ── SECTION 6: Branding ────────────────────────── -->
           <fieldset class="form-section">
             <legend class="form-section-title">
-              <span aria-hidden="true">06 ·</span> Logos &amp; Photos
+              <span aria-hidden="true">06 ·</span> Branding
             </legend>
             <div class="form-grid">
-              <div class="form-group">
-                <label>Upload Your Logo</label>
-                <div class="file-upload-area" id="logo-drop">
-                  <input
-                    type="file"
-                    name="logo"
-                    id="logo-upload"
-                    accept="image/png,image/jpeg,image/svg+xml,image/webp"
-                    aria-label="Upload your logo"
-                  >
-                  <div class="upload-icon" aria-hidden="true">🖼️</div>
-                  <span class="upload-label">Drop logo here or click to browse</span>
-                  <span class="upload-hint">PNG, JPG, SVG or WebP · Max 5MB</span>
-                  <div class="file-list" id="logo-file-list" aria-live="polite"></div>
-                </div>
-              </div>
-              <div class="form-group">
-                <label>Upload Photos (optional)</label>
-                <div class="file-upload-area" id="photos-drop">
-                  <input
-                    type="file"
-                    name="photos"
-                    id="photos-upload"
-                    accept="image/*"
-                    multiple
-                    aria-label="Upload photos of your business"
-                  >
-                  <div class="upload-icon" aria-hidden="true">📸</div>
-                  <span class="upload-label">Drop photos here or click to browse</span>
-                  <span class="upload-hint">JPG or PNG · Up to 5 files · Max 5MB each</span>
-                  <div class="file-list" id="photos-file-list" aria-live="polite"></div>
-                </div>
-              </div>
               <div class="form-group" style="grid-column:1/-1">
                 <label for="brand-colors">Brand Colors (hex codes if you know them)</label>
                 <input type="text" id="brand-colors" name="brand_colors" class="form-control" placeholder="e.g. Primary: #FF6B35, Secondary: #2C3E50 — or just describe: 'navy blue and gold'">
+                <p class="form-hint">We’ll collect your logo and photos directly after payment.</p>
               </div>
             </div>
           </fieldset>
@@ -387,8 +345,9 @@
               Complete Onboarding →
             </button>
             <p class="submit-note">
-              Your information goes directly to our team. After submitting, check your email for your private implementation offer and secure payment link. Payment reserves your work and starts the three-business-day build window.
+              Your information goes directly to our team. We’ll review it and email your private implementation offer and secure payment link. Payment reserves your work and starts the three-business-day build window.
             </p>
+            <p class="form-error" id="form-error" role="alert" aria-live="assertive"></p>
           </div>
 
         </div><!-- /onboard-card -->
@@ -423,43 +382,13 @@
     planSelect.addEventListener('change', updatePlanFields);
     updatePlanFields();
 
-    // File upload display
-    function showFiles(inputId, listId) {
-      const input = document.getElementById(inputId);
-      const list  = document.getElementById(listId);
-      if (!input || !list) return;
-
-      input.addEventListener('change', function () {
-        list.innerHTML = '';
-        Array.from(this.files).forEach(function (file) {
-          const item = document.createElement('div');
-          item.className = 'file-item';
-          item.innerHTML = '<span class="file-icon" aria-hidden="true">✓</span>' +
-            '<span>' + file.name + ' (' + (file.size / 1024).toFixed(0) + ' KB)</span>';
-          list.appendChild(item);
-        });
-      });
-    }
-
-    showFiles('logo-upload',   'logo-file-list');
-    showFiles('photos-upload', 'photos-file-list');
-
-    // Drag-over visual feedback
-    ['logo-drop', 'photos-drop'].forEach(function (id) {
-      const area = document.getElementById(id);
-      if (!area) return;
-      area.addEventListener('dragover',  function (e) { e.preventDefault(); area.classList.add('dragover'); });
-      area.addEventListener('dragleave', function ()  { area.classList.remove('dragover'); });
-      area.addEventListener('drop',      function ()  { area.classList.remove('dragover'); });
-    });
-
     // Form submission + success state
     const form    = document.getElementById('onboard-form');
     const success = document.getElementById('onboard-success');
     const submitBtn = document.getElementById('submit-btn');
+    const formError = document.getElementById('form-error');
 
-    // Check URL for ?success=true (Formspree redirect)
-    if (window.location.search.includes('success=true')) {
+    function showSuccess() {
       form.style.display = 'none';
       success.classList.add('active');
       document.querySelector('.onboard-header').style.display = 'none';
@@ -467,17 +396,35 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // Client-side submit handling (AJAX fallback)
+    // Submit over HTTPS to Formspree and keep the visitor on our confirmation screen.
     form.addEventListener('submit', async function (e) {
-      // If Formspree ID is placeholder, warn in dev
-      if (form.action.includes('YOUR_FORMSPREE_ID')) {
-        e.preventDefault();
-        alert('Formspree ID not set yet.\n\nReplace "YOUR_FORMSPREE_ID" in onboard.html with your Formspree form ID.');
+      e.preventDefault();
+
+      if (!form.checkValidity()) {
+        form.reportValidity();
         return;
       }
 
+      formError.textContent = '';
       submitBtn.disabled = true;
       submitBtn.textContent = 'Sending…';
+
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { Accept: 'application/json' }
+        });
+
+        if (!response.ok) throw new Error('Formspree rejected the submission');
+
+        form.reset();
+        showSuccess();
+      } catch (error) {
+        formError.textContent = 'We couldn’t send your onboarding form. Please wait a moment and try again, or email SupremeDude@sometechdude.com.';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Complete Onboarding →';
+      }
     });
   </script>
 
