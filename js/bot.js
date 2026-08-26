@@ -208,61 +208,14 @@ Your replies are spoken aloud through the phone speaker. Therefore:
     }
 
     if (vapiConfigured() || apiKey) {
-      // Production mode: no setup screen, voice-first flyer experience.
+      // Production mode: show the chat, but never start a paid voice session
+      // until the visitor deliberately taps the microphone.
       const setup = $('aiw-setup');
       const chat  = $('aiw-chat');
       if (setup) setup.style.display = 'none';
       if (chat)  chat.style.display = 'flex';
-      showIntroOverlay();
     }
     // Nothing configured: legacy behavior — visitor enters their own key.
-  }
-
-  // ── INTRO OVERLAY (the flyer experience) ─────────────────────
-  // Phones block audio until the first touch, so this full-screen
-  // overlay turns that mandatory first tap into the start of the demo.
-  function showIntroOverlay() {
-    const ov = document.createElement('div');
-    ov.id = 'aiw-intro';
-    ov.innerHTML = `
-      <div class="aiw-intro-inner">
-        <div class="aiw-intro-orb" aria-hidden="true">🎙️</div>
-        <div class="aiw-intro-title">Meet Max</div>
-        <div class="aiw-intro-sub">Max talks back <strong>out loud</strong>. Tap anywhere to start — then tap <strong>“Allow”</strong> when your browser asks to use your <strong>microphone</strong> 🎙️ so Max can hear you.</div>
-      </div>`;
-    ov.addEventListener('click', startFlyerExperience, { once: true });
-    ov.addEventListener('touchend', startFlyerExperience, { once: true });
-    document.body.appendChild(ov);
-  }
-
-  let flyerStarted = false;
-  function startFlyerExperience(e) {
-    if (flyerStarted) return;        // touchend + click can both fire — run once
-    flyerStarted = true;
-    if (e) e.preventDefault();
-
-    const ov = $('aiw-intro');
-    if (ov) {
-      ov.classList.add('aiw-intro-out');
-      setTimeout(() => ov.remove(), 450);
-    }
-
-    openWindow();
-
-    if (vapiConfigured()) {
-      // Vapi mode: the assistant's firstMessage is the greeting.
-      startVapiCall();
-      return;
-    }
-
-    // Fallback mode: browser TTS + speech recognition.
-    voiceMode = true;
-    addBotMessage(GREETING_TEXT);
-    const audio = new Audio(CONFIG.greetingAudio);
-    audio.addEventListener('ended', () => startListening());
-    audio.play().catch(() => {
-      speak(GREETING_TEXT, () => startListening());
-    });
   }
 
   // ── MIC NOTICE (so visitors know to allow the mic) ───────────
@@ -359,29 +312,13 @@ Your replies are spoken aloud through the phone speaker. Therefore:
     return null;
   }
 
-  // Returns null when voice should work, else a short reason string.
-  //
-  // We PROBE for the microphone instead of trusting the user agent. In-app
-  // browsers differ by app version and platform and plenty of them do work —
-  // blocking a visitor whose mic was fine is a worse failure than the one
-  // we're fixing. A UA match alone never stops a call.
-  async function micCheck() {
+  // Check only whether this browser exposes microphone access. Vapi performs
+  // the actual getUserMedia request when it starts the call.
+  function micCheck() {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       return webviewName() || 'this browser';
     }
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      stream.getTracks().forEach((t) => t.stop());  // Vapi opens its own stream
-      return null;
-    } catch (err) {
-      // The visitor simply declined the prompt — that's recoverable, and the
-      // existing mic banner already explains how to undo it. Carry on exactly
-      // as before rather than sending them away.
-      if (err && (err.name === 'NotAllowedError' || err.name === 'SecurityError')) return null;
-      // NotFoundError / NotReadableError / AbortError in a webview means the
-      // environment genuinely can't hand us audio.
-      return webviewName() || 'this browser';
-    }
+    return null;
   }
 
   function showOpenInBrowserNotice(appName) {
@@ -441,7 +378,8 @@ Your replies are spoken aloud through the phone speaker. Therefore:
     vapiLoading = true;
     setVoiceUI(true, 'Connecting to Max…');
 
-    // Only bail if the mic genuinely can't be opened here (see micCheck).
+    // Let Vapi own the only microphone request. Opening and immediately
+    // closing a probe stream here can race its WebRTC media setup.
     const blocker = await micCheck();
     if (blocker) {
       vapiLoading = false;
