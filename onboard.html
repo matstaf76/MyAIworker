@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
-  <meta name="description" content="MyAIworker — Complete your onboarding to get your AI worker set up.">
-  <title>Welcome! Let's Build Your AI Worker — MyAIworker</title>
+  <meta name="description" content="MyAIworker — Complete your onboarding so we can prepare your AI Business Operating System.">
+  <title>Complete Your MyAIworker Onboarding</title>
   <link rel="icon" href="favicon.ico" sizes="48x48">
   <link rel="icon" type="image/png" sizes="192x192" href="images/icon-192.png">
   <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
@@ -26,22 +26,22 @@
     <div class="container">
 
       <div class="onboard-header fade-up">
-        <span class="section-label">Payment Confirmed ✓</span>
-        <h1 class="section-title">Let's Build Your AI Worker</h1>
+        <span class="section-label">Step One: Tell Us About Your Business</span>
+        <h1 class="section-title">Complete Your Onboarding</h1>
         <p>
-          Payment received — thank you! Fill out this form and we'll have your AI worker configured and ready.
-          The more detail you give us, the better your AI will perform from day one.
+          Give us the details needed to build your MyAIworker system. The more complete your answers,
+          the better your phone agent, talking website, calendars, CRM, and follow-up will fit your business.
         </p>
       </div>
 
       <!-- Progress -->
       <div class="onboard-progress fade-up" aria-label="Form progress">
-        <div class="progress-step done">
-          <span class="step-dot" aria-hidden="true"></span>Payment
-        </div>
-        <div class="progress-line" aria-hidden="true"></div>
         <div class="progress-step active">
           <span class="step-dot" aria-hidden="true"></span>Onboarding
+        </div>
+        <div class="progress-line" aria-hidden="true"></div>
+        <div class="progress-step">
+          <span class="step-dot" aria-hidden="true"></span>Payment
         </div>
         <div class="progress-line" aria-hidden="true"></div>
         <div class="progress-step">
@@ -55,12 +55,12 @@
 
       <!-- ── SUCCESS STATE (shown after submit) ──────────────── -->
       <div id="onboard-success" class="onboard-card" role="alert" aria-live="polite">
-        <div class="success-icon" aria-hidden="true">🚀</div>
-        <div class="success-title">You're All Set!</div>
+        <div class="success-icon" aria-hidden="true">✉️</div>
+        <div class="success-title">Check Your Email Now</div>
         <p class="success-desc">
-          Your onboarding info has been sent. We'll review everything and be in touch within 1 business day to confirm details and get your AI worker deployed.
+          Your onboarding information is saved. We have sent your private implementation offer and secure payment link to the email address you provided.
           <br><br>
-          Questions in the meantime? Email <a href="mailto:SupremeDude@sometechdude.com">SupremeDude@sometechdude.com</a>
+          Payment reserves your work and begins your three-business-day build window. If you do not see the message, check your spam folder or email <a href="mailto:SupremeDude@sometechdude.com">SupremeDude@sometechdude.com</a>.
         </p>
       </div>
 
@@ -88,28 +88,34 @@
             var params = new URLSearchParams(window.location.search);
             var planParam = params.get('plan');
             var planMap = {
-              'receptionist': 'AI Receptionist — $500/month',
-              'busybiz':      'Busy Business AI — $1,000/month',
-              'enterprise':   'Busy Business AI — $1,000/month'
+              'small-business':       'Small Business — $300/month',
+              'business':             'Business — $500/month',
+              'busy-business':        'Busy Business — $1,000/month',
+              'high-volume-business': 'High-Volume Business — $1,500/month'
             };
             if (planParam && planMap[planParam]) {
               document.addEventListener('DOMContentLoaded', function() {
                 var sel = document.getElementById('plan');
+                var source = document.getElementById('submission-source');
                 if (sel) {
                   for (var i = 0; i < sel.options.length; i++) {
                     if (sel.options[i].value === planMap[planParam]) {
                       sel.selectedIndex = i;
+                      sel.dispatchEvent(new Event('change'));
                       break;
                     }
                   }
                 }
+                if (source) source.value = 'Website plan selection: ' + planMap[planParam];
               });
             }
           })();
         </script>
 
-        <!-- Hidden field to capture which plan they bought -->
-        <input type="hidden" name="_subject" value="New MyAIworker Onboarding Submission">
+        <!-- Hidden fields used by Formspree notification and redirect -->
+        <input type="hidden" name="subject" value="New MyAIworker Onboarding — Payment Pending">
+        <input type="hidden" name="payment_status" value="Payment pending — onboarding completed">
+        <input type="hidden" name="submission_source" id="submission-source" value="Direct onboarding">
         <input type="hidden" name="_next" id="formspree-next" value="https://myaiworker.online/onboard.html?success=true">
         <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off">
 
@@ -122,11 +128,13 @@
             </legend>
             <div class="form-grid form-grid--2">
               <div class="form-group">
-                <label for="plan">Plan Purchased <span class="required" aria-label="required">*</span></label>
+                <label for="plan">Plan Selected <span class="required" aria-label="required">*</span></label>
                 <select id="plan" name="plan" class="form-control" required>
                   <option value="" disabled selected>Select your plan…</option>
-                  <option value="AI Receptionist — $500/month">AI Receptionist — $500/month</option>
-                  <option value="Busy Business AI — $1,000/month">Busy Business AI — $1,000/month</option>
+                  <option value="Small Business — $300/month">Small Business — $300/month</option>
+                  <option value="Business — $500/month">Business — $500/month</option>
+                  <option value="Busy Business — $1,000/month">Busy Business — $1,000/month</option>
+                  <option value="High-Volume Business — $1,500/month">High-Volume Business — $1,500/month</option>
                 </select>
               </div>
               <div class="form-group">
@@ -381,11 +389,10 @@
           <!-- ── SUBMIT ───────────────────────────────────────── -->
           <div class="form-submit">
             <button type="submit" class="btn btn--primary btn--lg btn--full" id="submit-btn">
-              Submit Onboarding Info →
+              Complete Onboarding →
             </button>
             <p class="submit-note">
-              Your info goes directly and securely to our team at sometechdude76@gmail.com.
-              We'll confirm receipt and follow up within 1 business day.
+              Your information goes directly to our team. After submitting, check your email for your private implementation offer and secure payment link. Payment reserves your work and starts the three-business-day build window.
             </p>
           </div>
 
@@ -409,14 +416,17 @@
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
 
-    // Show/hide Busy Business calendar section based on plan selection
+    // Show multi-calendar questions for the two higher-workload plans.
     const planSelect = document.getElementById('plan');
     const busySection = document.getElementById('busy-biz-section');
 
-    planSelect.addEventListener('change', function () {
+    function updatePlanFields() {
       busySection.style.display =
-        this.value.includes('Busy Business') ? 'block' : 'none';
-    });
+        planSelect.value.includes('Busy Business') || planSelect.value.includes('High-Volume') ? 'block' : 'none';
+    }
+
+    planSelect.addEventListener('change', updatePlanFields);
+    updatePlanFields();
 
     // File upload display
     function showFiles(inputId, listId) {
@@ -457,6 +467,8 @@
     if (window.location.search.includes('success=true')) {
       form.style.display = 'none';
       success.classList.add('active');
+      document.querySelector('.onboard-header').style.display = 'none';
+      document.querySelector('.onboard-progress').style.display = 'none';
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
