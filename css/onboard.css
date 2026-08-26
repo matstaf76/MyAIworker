@@ -335,6 +335,16 @@ select.form-control option {
   margin-inline: auto;
 }
 
+.form-error {
+  display: block;
+  min-height: 1.25rem;
+  margin: 0;
+  color: #ff8a80;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  text-align: center;
+}
+
 .success-desc a {
   color: var(--clr-amber);
   overflow-wrap: anywhere;
