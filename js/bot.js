@@ -70,6 +70,14 @@ The moment they identify as any of these:
 - Say roughly: "Medical and law offices need a compliance-grade build — signed BAA, protected-record handling, the works — so that's a separate product with its own pricing. Our compliance site is legal dot myaiworker dot online and it's built specifically for practices like yours."
 Establish what kind of business they run before you discuss any pricing, so you never have to walk a number back. Getting them to the right product matters more than anything you could close.
 
+## AI Time-Recovery Calculator
+
+The website includes a free, anonymous calculator for routine calls and questions, scheduling, lead and customer follow-up, routine email, calendar/spreadsheet/CRM data entry, and reminders/review requests/routine updates. It uses conservative assistance rates: calls 65%, scheduling 75%, follow-up 70%, routine email 55%, data entry 60%, and reminders or routine updates 80%.
+
+Weekly recoverable time is the sum of each task's weekly hours multiplied by its assistance rate. Monthly hours are weekly × 4.33, annual hours are weekly × 52, working days are hours ÷ 8, and optional annual working-capacity value is annual recoverable hours × the hourly value supplied. Always call these planning estimates, never guaranteed savings, revenue, staff reductions, or work requiring no human review. Recommend general workflow categories rather than forcing a named plan solely from calculator results.
+
+The calculator runs locally and does not send you its answers. Never imply you can see the visitor's entries. If they voluntarily tell you their numbers, you may calculate or explain them conversationally.
+
 ## Value Framing (use this whenever price comes up)
 
 Never defend the price. Reframe to what assembling this themselves would cost. Speak in round numbers, one or two items at a time — you are talking, not reading a table.
@@ -208,14 +216,59 @@ Your replies are spoken aloud through the phone speaker. Therefore:
     }
 
     if (vapiConfigured() || apiKey) {
-      // Production mode: show the chat, but never start a paid voice session
-      // until the visitor deliberately taps the microphone.
+      // Production mode: no setup screen, voice-first flyer experience.
       const setup = $('aiw-setup');
       const chat  = $('aiw-chat');
       if (setup) setup.style.display = 'none';
       if (chat)  chat.style.display = 'flex';
+      showIntroOverlay();
     }
     // Nothing configured: legacy behavior — visitor enters their own key.
+  }
+
+  // ── INTRO OVERLAY (the flyer experience) ─────────────────────
+  // Phones block audio until the first touch, so this full-screen
+  // overlay turns that mandatory first tap into the start of the demo.
+  function showIntroOverlay() {
+    const ov = document.createElement('div');
+    ov.id = 'aiw-intro';
+    ov.innerHTML = `
+      <div class="aiw-intro-inner">
+        <div class="aiw-intro-orb" aria-hidden="true">🎙️</div>
+        <div class="aiw-intro-title">Meet Max</div>
+        <div class="aiw-intro-sub">Max talks back <strong>out loud</strong>. Tap anywhere to start — then tap <strong>“Allow”</strong> when your browser asks to use your <strong>microphone</strong> 🎙️ so Max can hear you.</div>
+      </div>`;
+    ov.addEventListener('click', startFlyerExperience, { once: true });
+    ov.addEventListener('touchend', startFlyerExperience, { once: true });
+    document.body.appendChild(ov);
+  }
+
+  let flyerStarted = false;
+  function startFlyerExperience(e) {
+    if (flyerStarted) return;
+    flyerStarted = true;
+    if (e) e.preventDefault();
+
+    const ov = $('aiw-intro');
+    if (ov) {
+      ov.classList.add('aiw-intro-out');
+      setTimeout(() => ov.remove(), 450);
+    }
+
+    openWindow();
+
+    if (vapiConfigured()) {
+      startVapiCall();
+      return;
+    }
+
+    voiceMode = true;
+    addBotMessage(GREETING_TEXT);
+    const audio = new Audio(CONFIG.greetingAudio);
+    audio.addEventListener('ended', () => startListening());
+    audio.play().catch(() => {
+      speak(GREETING_TEXT, () => startListening());
+    });
   }
 
   // ── MIC NOTICE (so visitors know to allow the mic) ───────────
@@ -312,13 +365,24 @@ Your replies are spoken aloud through the phone speaker. Therefore:
     return null;
   }
 
-  // Check only whether this browser exposes microphone access. Vapi performs
-  // the actual getUserMedia request when it starts the call.
-  function micCheck() {
+  // Returns null when voice should work, else a short reason string.
+  //
+  // We PROBE for the microphone instead of trusting the user agent. In-app
+  // browsers differ by app version and platform and plenty of them do work —
+  // blocking a visitor whose mic was fine is a worse failure than the one
+  // we're fixing. A UA match alone never stops a call.
+  async function micCheck() {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       return webviewName() || 'this browser';
     }
-    return null;
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach((t) => t.stop());
+      return null;
+    } catch (err) {
+      if (err && (err.name === 'NotAllowedError' || err.name === 'SecurityError')) return null;
+      return webviewName() || 'this browser';
+    }
   }
 
   function showOpenInBrowserNotice(appName) {
@@ -378,8 +442,7 @@ Your replies are spoken aloud through the phone speaker. Therefore:
     vapiLoading = true;
     setVoiceUI(true, 'Connecting to Max…');
 
-    // Let Vapi own the only microphone request. Opening and immediately
-    // closing a probe stream here can race its WebRTC media setup.
+    // Only bail if the mic genuinely can't be opened here (see micCheck).
     const blocker = await micCheck();
     if (blocker) {
       vapiLoading = false;
